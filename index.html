@@ -334,6 +334,8 @@ function dayProgress(date){let t=0,k=0;t++;if(S.weights[date])k++;if(wkFor(date)
 /* ============ UI state ============ */
 let ui={tab:'dash',date:today(),wk:0,stack:[],sheet:null,ndate:today(),ptab:'weight',range:30,exSel:null,mtab:'food',wtab:'sched'};
 let restT=null;let toastT=null;
+let armed=false;const isClean=()=>!ui.stack.length&&ui.tab==='dash'&&!ui.sheet;
+function ensureArmed(){if(!armed){try{history.pushState({s:1},'')}catch(e){}armed=true}}
 const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)};
 const topv=()=>ui.stack[ui.stack.length-1];
 const go=v=>{ui.stack.push(v);render(false)};
@@ -362,7 +364,7 @@ function render(keep=true){
     `<div class="nav"><div>${NAVI.map(n=>`<button class="${ui.tab===n[0]?'on':''}" data-a="tab" data-t="${n[0]}">${n[1]}<span>${n[2]}</span></button>`).join('')}</div></div>`}
   $('#app').innerHTML=h;
   if(v&&v.t==='active'&&restT)drawRest();
-  scrollTo(0,keep?y:0);renderSheet();renderRest();
+  scrollTo(0,keep?y:0);renderSheet();renderRest();if(!isClean())ensureArmed();
 }
 const header=(title,left)=>`<div class="top">${left||''}<div class="ttl">${title}</div><button class="ib" data-a="settings">⚙</button></div>`;
 const backBtn='<button class="ib" data-a="back">←</button>';
@@ -892,6 +894,13 @@ document.addEventListener('change',ev=>{const t=ev.target,k=t.dataset.in;if(!k)r
   }
   save()});
 window.addEventListener('beforeunload',save);
+try{history.replaceState({s:0},'')}catch(e){}
+/* Android back button: 1st press -> dashboard, 2nd press -> leaves/closes the app */
+window.addEventListener('popstate',()=>{armed=false;
+  const dg=document.querySelector('.scrim.cen');if(dg){const b=dg.querySelector('[data-dlg=no]');if(b)b.click();render();return}
+  if(ui.sheet){ui.sheet=null;renderSheet();render();return}
+  if(!isClean()){ui.stack=[];ui.tab='dash';ui.date=today();render(false);return}
+  history.back()});
 
 load();
 // make sure old/partial saves have all keys
