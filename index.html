@@ -59,7 +59,7 @@ h1,h2,h3{margin:0}
 .sr .n{width:28px;height:28px;border-radius:8px;background:#0e131a;display:grid;place-items:center;font-size:14px}
 .sr input{text-align:center;padding:8px 4px;font-size:18px;font-weight:600;background:#0e131a}
 .sr .ck{width:30px;height:30px;border-radius:50%;border:2px solid #3a475b;margin:auto}
-.sr.ok .ck{background:var(--ok);border-color:var(--ok);color:#06210f;display:grid;place-items:center;font-weight:700}
+.sr.ok .ck{color:#101418;display:grid;place-items:center;font-weight:700}.sr.ok .ck.easy{background:var(--ok);border-color:var(--ok)}.sr.ok .ck.ideal{background:var(--warn);border-color:var(--warn)}.sr.ok .ck.max{background:var(--bad);border-color:var(--bad)}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:4px;background:var(--mut)}
 .dot.easy{background:var(--ok)}.dot.ideal{background:var(--warn)}.dot.max{background:var(--bad)}
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
@@ -84,7 +84,7 @@ h1,h2,h3{margin:0}
 svg text{fill:#8b97a8;font-size:10px}
 .tag{font-size:11px;padding:2px 8px;border-radius:8px;background:var(--card2);color:var(--mut)}
 .h3b{text-align:left;display:block}.prevb{color:var(--ac2);text-align:center;padding:6px 2px;border-radius:8px;background:#1a2538}.prevh{font-size:12px;color:var(--ac2);text-align:center}.acard{scroll-margin-top:76px}
-.swrap{position:relative;overflow:hidden;border-radius:10px}.swrap .sr{transition:transform .2s;background:var(--card)}.swrap .sr.ok{background:#1a2c26}.swrap.sw .sr{transform:translateX(-72px)}
+.swrap{position:relative;overflow:hidden;border-radius:10px}.swrap .sr{transition:transform .2s;background:var(--card)}.swrap .sr.ok.easy{background:#1a2c26}.swrap .sr.ok.ideal{background:#2c2a19}.swrap .sr.ok.max{background:#2e1d1d}.swrap.sw .sr{transform:translateX(-72px)}
 .sdel{position:absolute;right:0;top:0;bottom:0;width:68px;background:var(--bad);border-radius:10px;color:#fff;font-size:18px}.swrap:not(.sw) .sdel{display:none}
 input[type=checkbox]{width:auto}.steprow{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
 </style>
@@ -409,10 +409,10 @@ function vActive(){const A=S.active;if(!A){return '<p>No active workout.</p>'}
     <input data-in="note" data-ei="${ei}" value="${esc(e.notes)}" placeholder="✎ Add notes..." style="margin:10px 0 4px;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:6px 0;font-size:14px">
     <div class="sh"><span>SET</span><button class="prevh" data-a="fillPrev" data-ei="${ei}" title="Fill all sets from previous">PREVIOUS ↺</button><span style="text-align:center">KG</span><span style="text-align:center">REPS</span><span style="text-align:center">EFFORT</span></div>
     ${e.sets.map((s,si)=>{const p=pv&&(pv.sets[si]||pv.sets[pv.sets.length-1]);
-     return `<div class="swrap"><div class="sr ${s.effort?'ok':''}"><div class="n">${si+1}</div>${p?`<button class="xs prevb" data-a="usePrev" data-ei="${ei}" data-si="${si}" title="Tap to fill kg and reps">${fkg(p.kg)} x ${p.reps}<span class="dot ${p.effort||''}"></span></button>`:'<div class="xs mut" style="text-align:center">–</div>'}
+     return `<div class="swrap"><div class="sr ${s.effort?'ok '+s.effort:''}"><div class="n">${si+1}</div>${p?`<button class="xs prevb" data-a="usePrev" data-ei="${ei}" data-si="${si}" title="Tap to fill kg and reps">${fkg(p.kg)} x ${p.reps}<span class="dot ${p.effort||''}"></span></button>`:'<div class="xs mut" style="text-align:center">–</div>'}
       <input inputmode="decimal" data-in="kg" data-ei="${ei}" data-si="${si}" value="${s.kg===''?'':s.kg}" placeholder="${p?fkg(p.kg):''}">
       <input inputmode="numeric" data-in="reps" data-ei="${ei}" data-si="${si}" value="${s.reps===''?'':s.reps}" placeholder="${p?p.reps:''}">
-      <button class="ck" data-a="setck" data-ei="${ei}" data-si="${si}">${s.effort?'✓':''}</button></div><button class="sdel" data-a="delSet" data-ei="${ei}" data-si="${si}">🗑</button></div>`}).join('')}
+      <button class="ck ${s.effort||''}" data-a="setck" data-ei="${ei}" data-si="${si}">${s.effort?'✓':''}</button></div><button class="sdel" data-a="delSet" data-ei="${ei}" data-si="${si}">🗑</button></div>`}).join('')}
     <div class="g2" style="margin-top:10px"><button class="btn dim" data-a="rest" data-s="${e.rest}">⏱ Rest: ${fmtT(e.rest)}</button><button class="btn dim" data-a="addSet" data-ei="${ei}">＋ Add Set</button></div></div>`}).join('')}
   <button class="btn ghost" data-a="addEx">⊕ Add Exercise</button><button class="btn red" data-a="discard" style="margin-top:8px">Discard Workout</button>`}
 
