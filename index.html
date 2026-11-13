@@ -280,6 +280,16 @@ function fitem(e){ // food log entry -> numbers
   const f=S.foods[e.food];if(!f)return{name:'(deleted food)',sub:'',kcal:0,p:0,c:0,f:0};
   return{name:f.name,sub:(q!==1?q+' × ':'')+f.unit+(f.brand?' · '+f.brand:''),kcal:f.kcal*q,p:f.p*q,c:f.c*q,f:f.f*q}}
 function mealTot(m){if(m.fixed)return m.fixed;return m.items.reduce((a,i)=>{const f=S.foods[i.food];if(!f)return a;const q=i.qty||1;a.kcal+=f.kcal*q;a.p+=f.p*q;a.c+=f.c*q;a.f+=f.f*q;return a},{kcal:0,p:0,c:0,f:0})}
+const totalCount=()=>(S.baseCount==null?142:S.baseCount)+S.logs.filter(l=>l.counted).length;
+const WEEK_TARGET=6;
+function weekStats(date){const ws=addDays(date,-dateOf(date)),we=addDays(ws,6);const sets={};let n=0;const days=new Set();
+  S.logs.filter(l=>l.date>=ws&&l.date<=we).forEach(l=>{days.add(l.date);l.exercises.forEach(e=>{const m=EXD(e.ex).muscle;sets[m]=(sets[m]||0)+e.sets.length})});
+  const p=plan();const planM=new Set();let sched=0;if(p)p.days.forEach(id=>{if(id&&S.workouts[id]){sched++;S.workouts[id].items.forEach(i=>planM.add(EXD(i.ex).muscle))}});
+  Object.keys(sets).forEach(m=>planM.add(m));
+  const cov=planM.size?Math.round([...planM].reduce((a,m)=>a+Math.min(1,(sets[m]||0)/WEEK_TARGET),0)/planM.size*100):0;
+  return{sets,done:days.size,sched:Math.max(sched,days.size),cov}}
+function newPRs(l){const out=[];l.exercises.forEach(e=>{const mx=Math.max(...e.sets.map(x=>num(x.kg)));let prior=0;S.logs.forEach(o=>{if(o===l||o.date>l.date)return;o.exercises.filter(x=>x.ex===e.ex).forEach(x=>x.sets.forEach(y=>{prior=Math.max(prior,num(y.kg))}))});if(prior>0&&mx>prior)out.push({name:exName(e.ex),kg:mx})});return out}
+const AFF=["you're not just training. You're transforming.","every rep today was a vote for the person you're becoming.","showing up is the hardest rep — and you nailed it.","consistency beats intensity, and today you proved it.","strong body, strong mind. Well done today.","another one in the bank. Small steps, big changes.","you did what most people only plan to do.","progress, not perfection — and you made progress today."];
 const MEALS=['Breakfast','Lunch','Dinner','Snacks'];
 function dayFood(date){const d=S.foodLog[date]||{};const t={kcal:0,p:0,c:0,f:0,n:0};for(const m of MEALS)for(const e of d[m]||[]){const i=fitem(e);t.kcal+=i.kcal;t.p+=i.p;t.c+=i.c;t.f+=i.f;t.n++}return t}
 function mealTotals(date,m){const t={kcal:0,p:0,n:0};for(const e of(S.foodLog[date]||{})[m]||[]){const i=fitem(e);t.kcal+=i.kcal;t.p+=i.p;t.n++}return t}
@@ -312,7 +322,7 @@ function line(pts,{h=150,fmt=v=>r1(v)}={}){
 const NAVI=[['dash','⌂','Dashboard'],['nut','🍎','Nutrition'],['wk','🏋','Workout'],['prog','📈','Progress']];
 function render(keep=true){
   const y=scrollY;const v=topv();let h;
-  if(v){h=({preview:vPreview,active:vActive,summary:vSummary,exercise:vExercise,weditor:vWEditor,settings:vSettings,foods:vFoods,programs:vPrograms,plan:vPlan})[v.t](v)}
+  if(v){h=({preview:vPreview,active:vActive,summary:vSummary,exercise:vExercise,weditor:vWEditor,settings:vSettings,foods:vFoods,programs:vPrograms,plan:vPlan,celebrate:vCelebrate,weekly:vWeekly})[v.t](v)}
   else{h=({dash:vDash,nut:vNut,wk:vWk,prog:vProg})[ui.tab]()+
     `<div class="nav"><div>${NAVI.map(n=>`<button class="${ui.tab===n[0]?'on':''}" data-a="tab" data-t="${n[0]}"><i>${n[1]}</i>${n[2]}</button>`).join('')}</div></div>`}
   $('#app').innerHTML=h;
@@ -405,6 +415,45 @@ function vActive(){const A=S.active;if(!A){return '<p>No active workout.</p>'}
     <div class="g2" style="margin-top:10px"><button class="btn dim" data-a="rest" data-s="${e.rest}">⏱ Rest: ${fmtT(e.rest)}</button><button class="btn dim" data-a="addSet" data-ei="${ei}">＋ Add Set</button></div></div>`}).join('')}
   <button class="btn ghost" data-a="addEx">⊕ Add Exercise</button><button class="btn red" data-a="discard" style="margin-top:8px">Discard Workout</button>`}
 
+/* ---- Celebration + weekly body coverage ---- */
+function vCelebrate(v){const l=S.logs.find(x=>x.id===v.id);if(!l)return '<div class="top">'+backBtn+'</div>Not found';
+  const n=totalCount(),vv=logVol(l),prs=newPRs(l);const msg=AFF[(n+Math.round(vv))%AFF.length];
+  const eq=vv>=3500?(Math.max(1,Math.round(vv/2300))+(Math.round(vv/2300)<=1?' hippopotamus':' hippopotamuses')):(Math.max(1,Math.round(vv/300))+(Math.round(vv/300)<=1?' grand piano':' grand pianos'));
+  const row=(ic,l1,l2)=>`<div class="card row" style="margin:8px 0"><span style="font-size:22px">${ic}</span><div><div class="xs mut">${l1}</div><div class="b" style="font-size:18px">${l2}</div></div></div>`;
+  return `<div style="min-height:92vh;display:flex;flex-direction:column;padding-top:34px">
+   <span class="pill g" style="align-self:flex-start">${n} workouts complete</span>
+   <h1 style="font-size:32px;line-height:1.2;margin:24px 0 22px"><span style="color:var(--ac2)">${esc(S.name)}</span>, ${msg}</h1>
+   ${l.dur?row('⏱','Duration',l.dur+' minutes'):''}${row('🏋','Volume lifted',Math.round(vv).toLocaleString()+' kgs')}${row('🦛','Equivalent to lifting',eq)}
+   ${prs.map(p=>row('🏆','New personal record',esc(p.name)+' — '+fkg(p.kg)+' kg')).join('')}
+   <div class="sp"></div><button class="btn" data-a="celNext" data-id="${l.id}" style="margin-top:24px">Continue</button><button class="btn" style="background:none;color:var(--mut)" data-a="celDone">Done</button></div>`}
+function bodySVG(side,sets){
+  const pr=m=>Math.min(1,(sets[m]||0)/WEEK_TARGET);const F=m=>sets[m]>0?`rgba(91,141,239,${(.4+.6*pr(m)).toFixed(2)})`:'#2d3746';
+  const sh=(m,inner)=>inner.replace('<','<'+'').replace(/^<(\w+)/,`<$1 data-a="musTip" data-m="${m}" fill="${F(m)}" stroke="#0e131a" stroke-width="1"`);
+  const E=(m,cx,cy,rx,ry,rot)=>sh(m,`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"${rot?` transform="rotate(${rot} ${cx} ${cy})"`:''}/>`);
+  const Pth=(m,d)=>sh(m,`<path d="${d}"/>`);
+  const base=`<circle cx="100" cy="30" r="19" fill="#1c2430"/><rect x="92" y="46" width="16" height="12" fill="#1c2430"/>
+   <path d="M70 60 Q100 52 130 60 L136 100 Q132 150 126 172 L74 172 Q68 150 64 100 Z" fill="#1c2430"/>
+   <path d="M76 170 L100 170 L97 262 L94 384 L72 384 L70 262 Z" fill="#1c2430"/>
+   <path d="M64 70 Q44 92 40 140 L37 186 L52 188 L58 146 Q64 112 70 80 Z" fill="#1c2430"/>`;
+  let half;
+  if(side==='front')half=Pth('Traps','M84 56 L98 58 L98 66 L72 70 Z')+E('Shoulders',60,80,15,13)+Pth('Chest','M70 80 Q98 72 98 100 Q80 110 66 100 Z')+E('Biceps',51,114,9,20,8)+E('Forearms',44,160,8,22,5)+Pth('Core','M72 112 L82 110 L82 154 L74 150 Z')+E('Quadriceps',84,226,15,44)+E('Adductors',96,228,5,24)+E('Calves',83,326,10,32);
+  else half=Pth('Traps','M84 56 L98 56 L98 100 L80 82 Z')+E('Shoulders',60,80,15,13)+Pth('Back','M68 86 Q84 84 98 102 L98 146 Q78 144 72 128 Z')+E('Triceps',51,114,9,20,8)+E('Forearms',44,160,8,22,5)+E('Glutes',86,184,15,15)+E('Hamstrings',84,240,14,38)+E('Calves',83,326,10,32);
+  const mid=side==='front'?`<rect data-a="musTip" data-m="Abs" x="86" y="106" width="28" height="50" rx="9" fill="${F('Abs')}" stroke="#0e131a"/>`:'';
+  return `<svg viewBox="0 0 200 392" style="width:100%;max-width:300px;display:block;margin:auto"><g>${base}${half}</g><g transform="translate(200,0) scale(-1,1)">${base}${half}</g>${mid}</svg>`}
+function vWeekly(v){const l=S.logs.find(x=>x.id===v.id);const date=l?l.date:today();const st=weekStats(date);const side=ui.side||'front';
+  const tops=Object.keys(st.sets).sort((a,b)=>st.sets[b]-st.sets[a]);const sel=ui.tip&&st.sets[ui.tip]!=null?ui.tip:(tops[0]||'');
+  return `<div class="top">${backBtn}<div class="sp"></div></div>
+  <h1 style="font-size:28px;margin:4px 0 8px">Weekly Progress</h1>
+  <div class="row"><span class="pill">${st.done}/${st.sched} workouts</span><span class="pill">${st.cov}% muscle coverage</span></div>
+  <div style="position:relative;margin:14px 0 6px">
+   ${sel?`<div class="card" style="margin:0 0 6px"><div class="b">${esc(sel)}</div><div class="xs mut">${st.sets[sel]||0}/${WEEK_TARGET} sets this week</div><div class="bar" style="margin-top:6px"><i style="width:${Math.min(100,(st.sets[sel]||0)/WEEK_TARGET*100)}%"></i></div></div>`:''}
+   ${bodySVG(side,st.sets)}
+   <button class="ib" style="position:absolute;right:0;bottom:0;background:var(--card2);color:var(--ac2)" data-a="flipBody" title="Rotate">⟲</button></div>
+  <div class="xs mut" style="text-align:center">${side==='front'?'Front':'Back'} view · tap a muscle · ⟲ to rotate</div>
+  <h3 style="margin:16px 0 6px">Muscles trained this week</h3>
+  ${tops.map(m=>`<button class="row" style="width:100%;padding:8px 0" data-a="musTip" data-m="${m}"><div style="width:96px;text-align:left" class="sm">${m}</div><div class="bar sp"><i style="width:${Math.min(100,st.sets[m]/WEEK_TARGET*100)}%"></i></div><span class="xs mut" style="width:46px;text-align:right">${st.sets[m]}/${WEEK_TARGET}</span></button>`).join('')||'<div class="mut sm">No sets logged this week yet.</div>'}
+  <button class="btn" style="margin-top:18px" data-a="celDone">Done for today ✓</button>`}
+
 /* ---- Summary ---- */
 function vSummary(v){const l=S.logs.find(x=>x.id===v.id);if(!l)return header('Workout',backBtn)+'Not found';
   S._cur=l;const vv=logVol(l);
@@ -420,7 +469,7 @@ function vSummary(v){const l=S.logs.find(x=>x.id===v.id);if(!l)return header('Wo
   ${l.exercises.map((e,i)=>{const pe=prev&&prev.exercises.find(x=>x.ex===e.ex);const pv=pe&&vol(pe.sets)?Math.round((vol(e.sets)/vol(pe.sets)-1)*100):null;
    return `<div class="card"><div class="row"><div class="sp"><div class="b">${esc(exName(e.ex))}</div>${prev&&!pe?'<span class="pill g">+ ADDED</span>':pv!==null?`<span class="pill ${pv>=0?'g':''}">${pv>=0?'+':''}${pv}% volume vs. last time</span>`:''}</div><button class="ib" data-a="editSession" data-id="${l.id}" data-i="${i}">✎</button></div>
    ${e.sets.map((s,si)=>`<div class="kv"><span class="mut">Set ${si+1}</span><span>${fkg(s.kg)} kg × ${s.reps}<span class="dot ${s.effort||''}"></span></span></div>`).join('')}${e.notes?`<div class="xs mut" style="margin-top:6px">📝 ${esc(e.notes)}</div>`:''}</div>`}).join('')}
-  <button class="btn" data-a="back" style="margin-top:12px">Done</button>`}
+  ${v.flow?`<button class="btn" data-a="toWeekly" data-id="${l.id}" style="margin-top:12px">Continue</button>`:`<button class="btn" data-a="back" style="margin-top:12px">Done</button>`}`}
 
 /* ---- Exercise detail ---- */
 function vExercise(v){const e=EXD(v.e);const tab=v.tab||'guide';let body;
@@ -487,6 +536,7 @@ function vProg(){
    ${g.startWeight&&lw?`<div class="sm mut">Change since start: <b style="color:var(--tx)">${r1(lw.w-g.startWeight)>0?'+':''}${r1(lw.w-g.startWeight)} kg</b></div>`:''}
    <button class="btn dim" style="margin-top:10px" data-a="weigh">Log weight</button>
    <details style="margin-top:8px"><summary class="sm mut">Weigh-in history</summary>${[...wd].reverse().slice(0,30).map(d=>`<div class="kv"><span class="mut">${fd(d,1)}</span><span>${S.weights[d].toFixed(1)} kg</span></div>`).join('')}</details></div>
+  <div class="card"><div class="xs mut">TOTAL WORKOUTS</div><div class="b" style="font-size:24px">${totalCount()} <span class="sm mut">completed</span></div></div>
   <div class="card"><div class="xs mut">NUTRITION</div><div class="b" style="font-size:20px">${logged7} of 7 days <span class="sm mut">logged</span></div><div class="sm mut">${logged7?'Avg '+Math.round(kc/logged7)+' kcal on logged days · target '+S.tgt.calMin+'-'+S.tgt.calMax:'Nothing logged in the last 7 days'}</div></div>
   <div class="card"><div class="xs mut">WORKOUTS</div><div class="b" style="font-size:20px">${sched?Math.round(did/sched*100):0}% <span class="sm mut">consistent · last 4 weeks (${did}/${sched})</span></div></div>
   <div class="card"><div class="xs mut">WEEKLY VOLUME (kg)</div>${line(wkvol,{fmt:v=>Math.round(v)})}</div>
@@ -499,6 +549,7 @@ function vProg(){
 function vSettings(){const T=S.tgt;
   return `<div class="top">${backBtn}<div class="ttl">Settings & Backup</div><div style="width:38px"></div></div>
   <div class="card"><label class="lbl" style="margin-top:0">Your name</label><input data-in="sname" value="${esc(S.name)}">
+   <label class="lbl">Workouts completed before you started using this app</label><input inputmode="numeric" data-in="base" value="${S.baseCount==null?142:S.baseCount}">
    <div class="g2"><div><label class="lbl">Calories min</label><input inputmode="numeric" data-in="tgt" data-k="calMin" value="${T.calMin}"></div><div><label class="lbl">Calories max</label><input inputmode="numeric" data-in="tgt" data-k="calMax" value="${T.calMax}"></div></div>
    ${[['p','Protein (g) min / max'],['c','Carbs (g) min / max'],['f','Fat (g) min / max']].map(([k,l])=>`<label class="lbl">${l}</label><div class="g2"><input inputmode="numeric" data-in="tgt2" data-k="${k}" data-j="0" value="${T[k][0]}"><input inputmode="numeric" data-in="tgt2" data-k="${k}" data-j="1" value="${T[k][1]}"></div>`).join('')}</div>
   <div class="card"><div class="b">My foods</div><div class="sm mut" style="margin-bottom:8px">${Object.keys(S.foods).length} foods · ${Object.keys(S.meals).length} meals</div><button class="btn dim" data-a="foodsMgr">Manage foods</button></div>
@@ -670,15 +721,20 @@ function pickEx(ids,s){
   else if(s.mode==='swap'){const e=S.active.exercises[ui.cur.ei];e.ex=ids[0];e.sets.forEach(x=>{x.kg='';x.reps='';x.effort=null});save()}
   else if(s.mode==='wadd'){const w=S.workouts[s.w];ids.forEach(id=>{const df=defs(EXD(id).name);w.items.push({ex:id,sets:df.sets,lo:df.lo,hi:df.hi,rest:df.rest,side:df.side,note:''})});save()}
   closeSheet();render()}
+A.celNext=d=>{ui.stack=[{t:'summary',id:d.id,flow:1}];render(false)};
+A.celDone=()=>{ui.stack=[];ui.tab='dash';ui.date=today();render(false)};
+A.toWeekly=d=>{ui.stack=[{t:'weekly',id:d.id}];ui.tip=null;render(false)};
+A.flipBody=()=>{ui.side=(ui.side==='back')?'front':'back';render()};
+A.musTip=d=>{ui.tip=d.m;render()};
 A.finish=()=>{const a=S.active;const pending=a.exercises.reduce((n,e)=>n+e.sets.filter(s=>!s.effort).length,0);
   const done=a.exercises.reduce((n,e)=>n+e.sets.filter(s=>s.effort).length,0);
   if(!done){toast('Complete at least one set first');return}
   if(pending&&!confirm(pending+' set(s) not completed — they will be dropped. Finish workout?'))return;
   const exs=a.exercises.map(e=>({ex:e.ex,notes:e.notes,sets:e.sets.filter(s=>s.effort).map(s=>({kg:num(s.kg),reps:num(s.reps),effort:s.effort}))})).filter(e=>e.sets.length);
   const dur=Math.max(1,Math.round((Date.now()-a.start)/60000));
-  const log={id:uid(),date:a.date,workoutId:a.workoutId,name:a.name,start:a.start,dur,exercises:exs};
+  const log={id:uid(),date:a.date,workoutId:a.workoutId,name:a.name,start:a.start,dur,exercises:exs,counted:true};
   S.logs.push(log);S.logs.sort((x,y)=>x.date===y.date?x.start-y.start:x.date<y.date?-1:1);S.active=null;save();stopRest();
-  ui.stack=[{t:'summary',id:log.id}];render(false)};
+  ui.stack=[{t:'celebrate',id:log.id}];render(false)};
 A.discard=()=>{if(confirm('Discard this workout? Logged sets will be lost.')){S.active=null;save();stopRest();ui.stack=[];render(false)}};
 A.delLog=d=>{if(confirm('Delete this workout from history?')){S.logs=S.logs.filter(l=>l.id!==d.id);save();ui.stack=[];render(false)}};
 A.editSession=d=>sheet({t:'editSession',id:d.id,i:+d.i});
@@ -774,6 +830,7 @@ document.addEventListener('change',ev=>{const t=ev.target,k=t.dataset.in;if(!k)r
   case'pname':S.plans[D.id].name=t.value.trim()||S.plans[D.id].name;break;
   case'wname':S.workouts[D.w].name=t.value.trim()||S.workouts[D.w].name;break;
   case'wi':S.workouts[D.w].items[D.n][D.k]=Math.max(0,Math.round(num(t.value)));break;
+  case'base':S.baseCount=Math.max(0,Math.round(num(t.value)));break;
   case'sname':S.name=t.value.trim()||'Friend';break;
   case'tgt':S.tgt[D.k]=num(t.value);break;
   case'tgt2':S.tgt[D.k][+D.j]=num(t.value);break;
@@ -786,6 +843,7 @@ window.addEventListener('beforeunload',save);
 load();
 // make sure old/partial saves have all keys
 for(const k of['workouts','plans','logs','weights','foods','meals','foodLog','custom','exnotes'])if(!S[k])S[k]=(k==='logs')?[]:{};
+if(S.baseCount==null)S.baseCount=142;
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().then(v=>{PERSISTED=v})}catch(e){}
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 if(S.active&&!topv())ui.stack=[{t:'active'}];
