@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e131a"><link rel="manifest" href="manifest.webmanifest">
+<title>My Fitness</title>
+<style>
+:root{--bg:#0e131a;--card:#171e28;--card2:#1e2733;--line:#273243;--tx:#f1f4f9;--mut:#8b97a8;--ac:#5b8def;--ac2:#7aa5ff;--ok:#4ac26b;--warn:#e8c547;--bad:#ea6a62}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+#app{max-width:480px;margin:0 auto;padding:0 16px 96px;min-height:100vh}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+input,select,textarea{font:inherit;color:var(--tx);background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;outline:none}
+input:focus,textarea:focus{border-color:var(--ac)}
+h1,h2,h3{margin:0}
+.top{display:flex;align-items:center;gap:8px;padding:14px 0 8px;position:sticky;top:0;background:var(--bg);z-index:5}
+.top .ttl{flex:1;text-align:center;font-weight:600}
+.ib{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:20px;color:var(--mut)}
+.ib:active{background:var(--card2)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+.row{display:flex;align-items:center;gap:10px}
+.sp{flex:1}.mut{color:var(--mut)}.sm{font-size:13px}.xs{font-size:12px}.b{font-weight:600}
+.btn{background:var(--ac);color:#fff;border-radius:14px;padding:13px 16px;width:100%;font-weight:600;text-align:center}
+.btn.ghost{background:transparent;border:1px solid var(--ac);color:var(--ac2)}
+.btn.dim{background:var(--card2);color:var(--tx)}
+.btn.red{background:transparent;color:var(--bad)}
+.btn.sm2{width:auto;padding:8px 14px;border-radius:12px;font-size:14px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#0b1017;border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:10}
+.nav>div{display:flex;width:100%;max-width:480px}
+.nav button{flex:1;padding:9px 0 8px;font-size:11px;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav button i{font-style:normal;font-size:20px}
+.nav button.on{color:var(--ac2)}
+.week{display:flex;justify-content:space-between;margin:6px 0 4px}
+.day{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--mut);width:13%}
+.day .c{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:15px;color:var(--tx);position:relative;background:conic-gradient(var(--ac) calc(var(--p)*1%),#2a3340 0)}
+.day .c b{width:32px;height:32px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-weight:500}
+.day.sel{color:var(--ac2)}.day.sel .c b{background:var(--ac);color:#fff}
+.day.today .c b{border:1px solid var(--ac)}
+.chk{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;margin:9px 0;width:100%;text-align:left}
+.chk .ic{width:40px;height:40px;border-radius:10px;background:#1c2a47;display:grid;place-items:center;color:var(--ac2);font-size:19px}
+.chk.done .ic{background:transparent;border:1px solid var(--ok);color:var(--ok)}
+.chk .tick{width:24px;height:24px;border-radius:50%;background:var(--ok);color:#06210f;display:grid;place-items:center;font-size:14px;font-weight:700}
+.bar{height:8px;background:#2a3340;border-radius:6px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--ac);border-radius:6px}
+.bar.over>i{background:var(--bad)}
+.pill{display:inline-block;padding:3px 9px;border-radius:12px;font-size:12px;background:#1c2a47;color:var(--ac2)}
+.pill.p{background:#2c2147;color:#b79bff}.pill.g{background:#173a26;color:var(--ok)}
+.seg{display:flex;background:var(--card);border-radius:14px;padding:4px;gap:4px;margin:10px 0}
+.seg button{flex:1;padding:9px;border-radius:11px;color:var(--mut);font-size:14px}
+.seg button.on{background:var(--card2);color:var(--tx);font-weight:600}
+.ex{display:flex;align-items:center;gap:12px;padding:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin:8px 0;width:100%;text-align:left}
+.ex .th{width:44px;height:44px;border-radius:10px;background:var(--card2);display:grid;place-items:center;font-size:12px;color:var(--ac2);font-weight:700;flex:none}
+.acard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin:12px 0}
+.acard h3{font-size:16px;color:var(--ac2)}
+.done-b{display:inline-block;font-size:11px;color:var(--ok);background:#173a26;border-radius:8px;padding:2px 8px;margin-top:3px}
+.sh{display:grid;grid-template-columns:34px 1fr 74px 74px 44px;gap:8px;align-items:center;font-size:12px;color:var(--mut);padding:8px 0 4px}
+.sr{display:grid;grid-template-columns:34px 1fr 74px 74px 44px;gap:8px;align-items:center;padding:6px 0;border-radius:10px}
+.sr.ok{background:#1a2c26}
+.sr .n{width:28px;height:28px;border-radius:8px;background:#0e131a;display:grid;place-items:center;font-size:14px}
+.sr input{text-align:center;padding:8px 4px;font-size:18px;font-weight:600;background:#0e131a}
+.sr .ck{width:30px;height:30px;border-radius:50%;border:2px solid #3a475b;margin:auto}
+.sr.ok .ck{background:var(--ok);border-color:var(--ok);color:#06210f;display:grid;place-items:center;font-weight:700}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:4px;background:var(--mut)}
+.dot.easy{background:var(--ok)}.dot.ideal{background:var(--warn)}.dot.max{background:var(--bad)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#141b25;border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:88vh;overflow:auto;padding:12px 16px calc(20px + env(safe-area-inset-bottom));border:1px solid var(--line)}
+.sheet .grab{width:44px;height:4px;background:#3a475b;border-radius:3px;margin:0 auto 12px}
+.opt{display:block;width:100%;text-align:left;padding:13px 6px;border-bottom:1px solid var(--line)}
+.opt.red{color:var(--bad)}
+.eff{display:block;width:100%;text-align:left;border-radius:14px;padding:13px 15px;margin:9px 0;border:1px solid}
+.eff.easy{background:#173a26;border-color:#2c7a4a}.eff.ideal{background:#3a3417;border-color:#8a7a2a}.eff.max{background:#3d2220;border-color:#8a3b36}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#2a3340;padding:10px 16px;border-radius:12px;z-index:40;font-size:14px}
+.restbar{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);background:#0b1017;border-top:1px solid var(--ac)}
+.restbar>div{max-width:480px;width:100%;display:flex;align-items:center;gap:12px;padding:12px 16px}
+.big{font-size:30px;font-weight:700}
+.stepper{display:flex;align-items:center;justify-content:space-between;background:#0e131a;border:1px solid var(--line);border-radius:16px;padding:18px}
+.stepper .v{font-size:44px;font-weight:700}
+.stepper button{font-size:30px;color:var(--ac2);width:44px}
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}
+.lbl{font-size:12px;color:var(--mut);margin:10px 0 4px;display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.muscle{display:flex;gap:8px;overflow:auto;padding:2px 0}
+.muscle .card{margin:0;min-width:96px;padding:10px;text-align:center}
+svg text{fill:#8b97a8;font-size:10px}
+.tag{font-size:11px;padding:2px 8px;border-radius:8px;background:var(--card2);color:var(--mut)}
+.h3b{text-align:left;display:block}.acard{scroll-margin-top:76px}
+.swrap{position:relative;overflow:hidden;border-radius:10px}.swrap .sr{transition:transform .2s;background:var(--card)}.swrap .sr.ok{background:#1a2c26}.swrap.sw .sr{transform:translateX(-72px)}
+.sdel{position:absolute;right:0;top:0;bottom:0;width:68px;background:var(--bad);border-radius:10px;color:#fff;font-size:18px}.swrap:not(.sw) .sdel{display:none}
+input[type=checkbox]{width:auto}.steprow{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<script>
+/* ============ utils ============ */
+const $=s=>document.querySelector(s);
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const today=()=>iso(new Date());
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const diffDays=(a,b)=>Math.round((parse(a)-parse(b))/864e5);
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const DOWL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const fd=(s,y)=>{const d=parse(s);return MON[d.getMonth()]+' '+d.getDate()+(y?', '+d.getFullYear():'')};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r1=n=>Math.round(n*10)/10;
+const num=v=>{const n=parseFloat(v);return isFinite(n)?n:0};
+const fmtT=s=>Math.floor(s/60)+':'+pad(Math.max(0,Math.floor(s%60)));
+const fkg=n=>(Math.round(n*100)/100).toString();
+
+/* ============ library, form guides & seed ============ */
+/* Exercise names/groups transcribed from the Fitness2 recording. Form steps: Built with Science cues where their pages cover the lift
+   (barbell row, squat, deadlift/RDL, hip thrust, Bulgarian split squat, step-ups, incline press, seated cable fly, preacher/behind-body curls,
+   overhead triceps extensions, chest-supported & lat-focused rows, reverse crunch, etc.), otherwise standard coaching cues. Edit any in-app via "My notes". */
+const LIBRAW={
+Chest:['Low Incline Dumbbell Press','Decline Dumbbell Press','Flat Dumbbell Press','Barbell Bench Press','Low Incline Barbell Press','Incline Machine Chest Press','Low Incline Smith Machine Press','Decline Machine Chest Press','Chest Dips','Flat Smith Machine Chest Press','Seated Mid-Chest Cable Fly','Standing High To Low Cable Flyes','Low Incline Cable Press','Seated Flat Cable Press','Flat Machine Chest Press','Low to High Cable Fly','Standing Mid-Chest Cable Fly','Push-Ups (bands optional)','Decline Push-Ups (bands optional)','Incline Push-Ups (bands optional)','Weakpoint Pause Bench Press','Pec-Deck Machine Fly','Banded Standing Underhand Fly','Neutral Grip Dumbbell Press (*Shoulder Friendly)','Standing Underhand Dumbbell Fly','Dumbbell Fly','Supine Press Machine','Push-Ups (bands optional) (Rest-Pause)','(Bodyweight) Dip Push-Ups','(Bodyweight) Inner Chest Push-Up','Dumbbell Floor Press','Machine Assisted Chest Dips'],
+Shoulders:['Rear Delt Cable Fly','Cable Lateral Raise','Prone Arm Circles','Seated Dumbbell Shoulder Press','Standing Barbell Overhead Press','Reverse Pec Deck','Chest Supported Dumbbell Rear Delt Row','Rear Delt Cable Row','Dumbbell Lateral Raises','Lying Incline Lateral Raise','LU Raises','Standing Dumbbell Shoulder Press','Dumbbell Single Arm Rear Delt Row','Lean In Lateral Raise','Half Kneeling Landmine Press (*shoulder friendly)','Wide Grip Barbell Upright Row','Dumbbell Reverse Flyes','Arnold Press','Seated Neutral-Grip Dumbbell Shoulder Press (*shoulder friendly)','Standing Banded Shoulder Press','Banded Kneeling Rear Delt Row','Pike Pushup','Banded Lateral Raises','Lateral Raise (Machine)','Shoulder Press (Machine)','Front Raises','Banded Standing Reverse Flyes','Chest-to-Wall Handstand','Pike Push-up'],
+Biceps:['Lying Dumbbell Curls','Behind Body Cable Curls','Dumbbell Preacher Curl','Incline Dumbbell Curls','Seated Dumbbell Curls','Hammer Curls','Standing Barbell Curl','Rope Cable Curls (*neutral grip)','Standing Cable Curls','Dumbbell Spider Curls','EZ-Bar Bicep Curl','Standing Dumbbell Curls','Preacher Curl (Machine)','Preacher Curl (Barbell)','Banded Bicep Curls'],
+Triceps:['Single Arm Overhead Rope Extensions','Rope Overhead Tricep Extensions','Incline Dumbbell Overhead Extensions','Cable Pushdowns (*elbow friendly)','Cross Cable Tricep Extensions','JM Press','Close-Grip Smith Machine Press','Close Grip Dumbbell Press','Tricep Dips','Tricep Bar Pushdowns','Close-Grip Barbell Bench Press','Incline Barbell Skullcrushers','Dumbbell Overhead Tricep Extensions','Bodyweight Tricep Extensions','Bodyweight Close-Grip Push-Ups','Triceps Kickback','Banded Single Arm Overhead Extensions','Banded Tricep Pushdown','Machine Assisted Tricep Dips'],
+Forearms:['Reverse Curls (Dumbbell)','Wrist Extension (Dumbbell)','Forearm Push-Ups','Incline Hammer Preacher Curl','Wrist Extensions (Cables)','Wrist Curls (Cable)','Reverse Curls (Cables)','Wrist Curls (Dumbbell)','Dead Hang',"Farmer's Carry/Walk"],
+Back:['Pull-Ups','Lat Focused Cable Row','Chin-Ups','Lat Pulldowns','Wall Slides','Cat Cow','Dumbbell Chest Supported Row (mid/upper back focused)','Standing Face Pulls','Kneeling One Arm Lat Pulldown','Chest Supported Machine Row','Half-Kneeling Cable Row','(Weighted) Prone Arm Circles','Meadows Row','Seated Cable Row (mid/upper back focused)','Band Assisted Pull-Ups','Chest Supported Dumbbell Row (lat focused)','Inverted Row','Bent Over Dumbbell Face Pulls','Barbell Row (Lat Focused)','Barbell Row (mid/upper back focused)','Pull-Up Negatives','3 Point Dumbbell Row','Banded Face Pulls','Dumbbell Pullovers','Kneeling Lat Pulldowns','Banded Single Arm Lat Pulldown','T-Bar Row','Close-Grip Underhand Lat Pulldown','Banded Straight Arm Pulldown','Banded Bent Over Row','Banded Kneeling One Arm Row','Machine Assisted Chin-Ups','Front Lever','Muscle-up','Chest to Bar Pull-ups','Machine Assisted Pull-Ups','High Pulls'],
+Glutes:['Barbell Deadlift','Barbell Hip Thrust','Barbell Hip Thrust Progression','Dumbbell Romanian Deadlift','Cable Kickbacks','Glute Bridges',"World's Greatest Stretch",'Hip Abduction Machine','Hip Thrust Machine','Banded Hip Abductions','Bulgarian Split Squat (Glute Focused)','Side Lying Hip Raise','Weighted Step Ups (*knee friendly)','Barbell Deadlift Progression','Front Foot Elevated Reverse Lunges','Lateral Band Walk','Curtsy Lunges','(Weighted) Single Leg Hip Thrusts','Smith Machine Hip Thrust','Glute Focused Leg Press','Reverse Lunges (*knee friendly)','Hyperextensions (Glute Focused)','Glute-Focused Step Downs','Banded Donkey Kicks','Single-Leg Leg Press','Side Lying Leg Raise','Bodyweight Bulgarian Split Squats (Glute Focused)','Sumo Deadlift (*lower back friendly)','Trap Bar Deadlift (*lower back friendly)','(Bodyweight) Single Leg Hip Thrusts','Banded Deadlift','Bodyweight Sliding Reverse Lunges','Bodyweight Assisted Single Leg Lunge','Bench Reverse Hyperextensions','Banded Split Squat (Glute Focused)','Kettlebell Swing','Bodyweight Step-Ups'],
+Quadriceps:['Barbell Back Squat','Barbell Back Squat Progression','Asian Squat','Bulgarian Split Squat (Quad Focused)','Hack Squat Machine','Smith Machine Squat','Front Squat','Quad-Focused Leg Press','Seated Leg Extensions','Walking Lunges (Quad Focused)','Heel Elevated Split Squat','Bodyweight Sissy Squat','Heel Elevated Goblet Squat','Barbell Back Box Squat (*knee friendly)','Bodyweight Bulgarian Split Squats (Quad Focused)','Goblet Squat (*lower back friendly)','Zercher Squat','Belt Squat','Banded Goblet Squat','Pistol Squat','Pendulum Squat','Bodyweight Goblet Squats','Banded Split Squat (Quad Focused)','Bodyweight Compressions','Single-Leg Leg Press','Weighted Step Ups (*knee friendly)','Bodyweight Step-Ups','Reverse Lunges (*knee friendly)'],
+Hamstrings:['Barbell Romanian Deadlift','Seated Leg Curls','Hyperextensions (back/hamstring focused)','Barbell Good Mornings','Lying Leg Curls','Dumbbell Romanian Deadlift (Hamstring Focused)','Glute Ham Raise','Swiss Ball Leg Curls','Bodyweight Sliding Hamstring Curls','Dumbbell Lying Leg Curls','Nordic Hamstring Curl','Single-Leg Romanian Deadlift','Banded Hamstring Curls'],
+Calves:['Leg Press Calf Raises','Toes-Elevated Smith Machine Calf Raises','Standing Weighted Calf Raises (Barbell or Dumbbell)','Single Leg Weighted Calf Raise','Seated Weighted Calf Raises','Seated Bodyweight Calf Raises','Bodyweight Single Leg Calf Raises','Standing Calf Raise (Machine)','Tibialis Raise'],
+Core:['Dead Bug','Bird Dog','RKC Plank','Side Plank','Palloff Press','Russian Twists','Lying Windshield Wipers'],
+Abs:['Reverse Crunches','Cable Crunches','Decline Weighted Sit Ups','Hanging Leg Raises','Weighted Crunches','Ab Roller','Bodyweight V-Ups','Bodyweight Lying Leg Raises','Bodyweight Mountain Climbers','Bodyweight Bicycle Kicks','Bodyweight Hollow Body Hold','Ab Crunch','Assisted Lat Pulldown Crunch','Dragon Flag','Ab Mat Reverse Crunches','Kneeling Cable Crunch (Facing Away)','Lat Pulldown Cable Crunch (Facing Away)',"Captain's Chair Leg Raise",'Standing Cable Crunch (Facing Away)','Unassisted Lat Pulldown Crunch','Garhammer Hold','Garhammer Raise','Bodyweight Butterfly Kicks','Lat Pulldown Cable Crunch (Facing Machine)','Ab Mat Crunch'],
+Traps:['Barbell Shrugs','Dumbbell Shrugs','Cable Shrugs','Scapular Pull-ups'],
+Adductors:['Hip Adduction Machine']
+};
+const MUSCLES=Object.keys(LIBRAW);
+const exId=n=>'e_'+n.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+
+/* --- form-guide engine: specific cues first (OV), then movement families (FAM), then modifiers --- */
+const OV=[
+[/^lat pulldowns$|^close-grip underhand lat pulldown|^kneeling lat pulldowns/i,['Adjust the thigh pad so your legs are locked in, feet flat. Grip the bar a little wider than shoulder-width; hands act as hooks.','Lean back slightly, chest up, and start the pull by driving your elbows down toward your back pockets (not by pulling with the hands).','Pull the bar to your upper chest, squeezing the lats. Do not swing or lean back more as you tire.','Return the bar slowly until your arms are fully straight and your lats are stretched, then repeat.'],'Thumbless grip and thinking "elbows to hips" helps you feel the lats instead of the biceps.'],
+[/^kneeling one arm lat pulldown|^banded single arm lat pulldown/i,['Kneel side-on to the cable with the handle at head height or above; sit tall with ribs down.','Start with the arm long and the shoulder blade stretched up.','Pull the elbow down and back toward your hip, finishing with the upper arm beside your body.','Control the return all the way up; keep the torso still and complete all reps before switching sides.'],''],
+[/^barbell row \(lat focused\)/i,['Feet a bit wider than hip-width with the bar over mid-foot. Hinge until your torso is roughly 15–45° from upright (as far as hamstring flexibility allows), back neutral.','Grip just outside the knees, brace your core, and keep the chest up.','Row with the elbows driving up and slightly back toward your hips; squeeze the shoulder blades at the top.','Let the arms straighten fully and lower under control. Do not flare the elbows or let the shoulders roll forward.'],'A narrower grip pulls toward the belly button and hits the lats more; a wider grip pulls toward the sternum and hits the upper back more. (Built with Science)'],
+[/^barbell row \(mid\/upper back focused\)|^banded bent over row|^high pulls/i,['Set up as for a bent-over row: feet slightly wider than hips, bar over mid-foot, torso 15–45° from upright with a neutral back.','Use a slightly wider grip so the bar travels toward the lower sternum.','Row with elbows out at roughly 45–60° from the torso, squeezing the shoulder blades together.','Lower with control until the arms are straight; keep the chest up and avoid shrugging.'],'Do not go so upright that the rep turns into a shrug. (Built with Science)'],
+[/^t-bar row|^meadows row/i,['Take an athletic hinge stance, back flat, chest up, core braced.','Row the handle/bar toward your lower ribs, keeping the elbow around 45–60° from the torso.','Squeeze the shoulder blades at the top; pause briefly.','Lower under control to a full stretch without rounding the back or twisting the torso.'],'Meadows row: smaller plates give more range of motion; use a strap if grip limits you. (Built with Science)'],
+[/chest supported dumbbell row \(lat|chest supported dumbbell rear delt|dumbbell chest supported row|chest supported machine row/i,['Set the bench to about 45° and lie chest-down with feet planted and legs slightly bent (machine: adjust the chest pad so the handles are reachable with arms long).','Let the shoulder blades open fully at the bottom.','Row the elbows back in an arrow shape (about 45° from the body; wider and out for rear delts), keeping forearms vertical.','Squeeze the shoulder blades at the top, then lower slowly; do not lift the chest off the pad.'],'Vertical forearms stop the biceps from taking over. (Built with Science)'],
+[/^seated cable row|^lat focused cable row|^half-kneeling cable row|^rear delt cable row/i,['Sit tall with a slight forward lean, feet braced, chest up and ribs down; arms long to start.','Start the pull by retracting the shoulder blades, then drive the elbows back (close to the body for lats, wider for mid/upper back).','Pull the handle to your lower ribs, pause and squeeze.','Return slowly until the shoulder blades fully protract. Do not rock the torso back and forth.'],''],
+[/3 point dumbbell row|single arm dumbbell row|^dumbbell single arm rear delt/i,['Support yourself with one hand and the same-side knee on a bench; back flat, other foot out for stability.','Keep the elbow tight to your side and drive it back toward your hip in a slight arc (wider and out for rear delts).','Keep the forearm vertical, do not rotate the torso, and pull until the elbow passes the torso.','Lower under control to a full stretch; finish all reps before switching sides.'],'Built with Science cue: elbow tight, forearm vertical, torso still.'],
+[/^pull-ups$|^chin-ups$|^chest to bar|^machine assisted (pull|chin)|^band assisted|^muscle-up/i,['Start from a dead hang with an overhand grip (underhand for chin-ups) just outside shoulder width. Squeeze glutes, ribs down.','Shrug the shoulders down and away from your ears first to engage the lats.','Pull your elbows down toward your ribs until your chin clears the bar (chest to bar for chest-to-bar pull-ups).','Lower slowly to a full hang. Avoid kipping or swinging unless the exercise calls for it.'],'Assisted variants: use just enough assistance to keep every rep full-range.'],
+[/^pull-up negatives/i,['Step or jump to the top position, chin over the bar.','Hold briefly, then lower yourself as slowly as you can (3–5 seconds).','Linger in the hardest part of the range.','Reset to the top with the box/bench and repeat.'],'Built with Science: lower as slowly as possible.'],
+[/^inverted row/i,['Set a bar at about hip height. Hang underneath with arms straight, body in a straight line, core tight, glutes squeezed, legs straight.','Pull your chest to the bar by driving the elbows toward the bar.','Squeeze the shoulder blades together at the top.','Lower under control. To make it harder, lower the bar or raise your feet.'],''],
+[/^barbell back squat|^front squat|^barbell back box|^smith machine squat|^zercher|^belt squat|^pendulum|^hack squat/i,['Set the bar/pads at a height that lets you unrack easily; feet about shoulder-width (a bit wider with toes slightly out is fine).','Take a big breath, brace the core, and sit down and slightly back, keeping your whole foot on the floor.','Descend as deep as you can with good form (upper thighs at least parallel); knees track over the toes.','Drive up through mid-foot, keeping the chest up. Exhale at the top.'],'A more upright torso emphasizes quads; more forward lean emphasizes glutes. If you struggle to get deep, raise your heels on small plates. (Built with Science)'],
+[/^goblet squat|^heel elevated goblet|^banded goblet|^bodyweight goblet|^asian squat|^bodyweight sissy|^bodyweight compressions|^pistol/i,['Hold the weight (or arms forward) at chest height, elbows in, feet shoulder-width with toes slightly out.','Brace and sit straight down between your hips, chest tall.','Reach the deepest comfortable position with heels down (raise heels on a small plate if needed).','Drive through the whole foot to stand. Keep the knees tracking over the toes.'],''],
+[/^barbell deadlift|^sumo deadlift|^trap bar deadlift|^banded deadlift|^barbell deadlift progression/i,['Feet hip-width (wider for sumo), bar over mid-foot. Push hips back and bend the knees until you can grip just outside the knees.','Make a fist and push the hands toward the floor to engage the lats; press the knees out against the arms.','Take a big breath, brace the core, flatten the back and squeeze the armpits.','Push the floor away until the bar passes the knees, then thrust the hips forward to stand tall.','Lower by pushing the hips back and sliding the bar along the thighs and shins.'],'Built with Science 5-step setup: bar over mid-foot, lats on, brace, push the floor, hips through.'],
+[/romanian deadlift|good morning/i,['Stand tall with the bar/dumbbells at the thighs, feet hip-width, knees only slightly bent.','Brace the core and push the hips straight back; the weight slides down the thighs.','Lower until the hamstrings are stretched and the hips can go no further back without the lower back rounding.','Drive the hips forward to stand, squeezing the glutes.'],'Keep the knees fairly straight for hamstrings (bending them shifts load to the glutes). Lower under control. (Built with Science)'],
+[/hip thrust|glute bridges|smith machine hip thrust/i,['Upper back against a bench (or lie on the floor for bridges), feet about hip-width, weight across the hips.','Set the feet so the shins are vertical over the feet at the top.','Brace the abs as if about to be punched and drive the hips up, keeping the ribs down (no lower-back arch).','Squeeze the glutes hard at lockout with the torso horizontal and pause 1–2 seconds; lower under control.'],'Focus on the top half of the rep and the squeeze. (Built with Science)'],
+[/bulgarian split squat/i,['Stand about two long steps in front of a bench and put the top of one foot on it (start with the back foot on a low surface if needed).','Set the front foot so that at the bottom the front shin is vertical over the foot.','Lower straight down under control; for glutes lean the torso forward and sit back, for quads stay upright with the knee forward.','Drive through the whole front foot to stand. Finish all reps, then switch sides.'],'If the front shin angles forward at the bottom, the foot is too close to the bench. (Built with Science)'],
+[/^(quad-focused |glute focused |single-leg )leg press/i,['Sit with the back flat against the pad and feet shoulder-width on the platform (higher = more glutes, lower = more quads).','Unlock the sled and lower until the knees are about 90° or deeper without your hips lifting off the seat.','Press through the whole foot (not the toes) to just short of locking the knees.','Do not let the knees cave in; keep the lower back on the pad.'],''],
+[/step ups|step-ups|step downs/i,['Use a bench or box about knee height (lower to start; a higher box shifts load to the glutes).','Plant the whole front foot on the box and drive off only that leg; do not push off the back foot.','Stand tall and squeeze the glute at the top (lean forward slightly for more glutes).','Lower slowly and with control; complete all reps on one side, then switch.'],'Built with Science: drive off the front leg only; slow lowering.'],
+[/lunge|split squat/i,['Take a long step (or set a split stance), torso tall (lean forward slightly for more glutes) and the front shin close to vertical.','Lower until the back knee hovers just above the floor.','Drive up through the whole front foot, keeping the front knee over the toes.','Complete all reps on one leg or alternate; keep hips square.'],'Upright torso with more knee bend = quads; forward lean with a vertical shin = glutes. (Built with Science)'],
+[/seated leg curls|lying leg curls|dumbbell lying leg curls|swiss ball leg curls|sliding hamstring curls/i,['Adjust the pad so it sits just above the heels and the machine pivot lines up with your knee (ball/sliders: bridge hips up and keep them up).','Curl the heels toward your glutes, squeezing the hamstrings.','Pause briefly, then return slowly, stopping just short of full leg extension to keep tension.','Keep the hips down on the seat/pad and avoid jerking.'],'Seated curls generally train the hamstrings better than lying. (Built with Science)'],
+[/seated leg extensions/i,['Adjust the back pad so your knees line up with the machine pivot and the shin pad sits just above the ankles.','Extend the knees until the legs are straight, squeezing the quads for a second.','Lower slowly under control; do not let the weight stack crash.','If the machine allows, lean back a little to stretch the rectus femoris.'],''],
+[/glute ham raise|nordic hamstring/i,['Lock the heels in and set the knees on the pad with the body in one straight line from knee to head.','Lower yourself forward as slowly as possible, keeping the hips extended (do not pike).','Use your hamstrings (and hands if needed) to pull back up to the start.','Do not hyperextend the lower back.'],'Built with Science: straight line from knee through hip, shoulder and neck.'],
+[/calf raise|tibialis raise/i,['Set up with the balls of your feet on a platform/pad (tibialis raise: heels on the floor, back against a wall).','Lower the heels as far as possible for a full stretch and pause at the bottom.','Rise up as high as possible onto your toes, squeezing hard at the top.','Keep the knees straight (seated versions: knees bent) and use a slow, controlled tempo.'],'Pause at the bottom for the stretch. (Built with Science)'],
+[/low incline|incline dumbbell press|incline machine|low incline smith/i,['Set the bench to a low incline (one or two notches up; steeper, 30–45°, if your sternum tilts down when you lie flat).','Plant the feet, pull the shoulder blades back and down, and keep a slight upper-back arch.','Lower with the elbows tucked in an arrow shape (about 45–70° from the torso) until the upper arms pass 90° for a good stretch.','Press up and slightly back toward the collarbone, squeezing the chest; stop just short of a hard lockout.'],'Built with Science: tucked "arrow" elbows, press up and back.'],
+[/bench press|flat dumbbell press|flat smith|flat machine chest press|decline dumbbell|decline machine|dumbbell floor press|neutral grip dumbbell press|weakpoint|supine press/i,['Lie back with eyes under the bar, feet planted, shoulder blades pulled back and down, slight upper-back arch.','Use a grip where your forearms are vertical and elbows sit under the wrists at the bottom.','Lower under control to the lower chest with elbows about 45–70° from the torso.','Press up and slightly back, thinking about squeezing the biceps together; keep the butt on the bench.'],'Pick the elbow angle that works the chest without shoulder or elbow discomfort. (Built with Science)'],
+[/seated mid-chest cable fly|standing mid-chest cable fly|low to high cable fly|standing high to low|low incline cable press|seated flat cable press/i,['Set the cables at shoulder height (low-to-high: start low; high-to-low: start high). Use a half foam roller behind the back to open the chest if seated.','Keep the chest up as if a string pulls the sternum to the ceiling; slight bend in the elbows, forearms in line with the cable.','Sweep the hands together in an arc, squeezing the biceps toward the sides of the chest.','Return slowly to a deep stretch without letting the shoulders roll forward.'],'Built with Science: scoot the butt forward so tension hits mid and lower chest.'],
+[/pec-deck|pec deck machine fly|banded standing underhand fly|dumbbell fly|standing underhand dumbbell fly/i,['Adjust the seat so the handles are at chest height (dumbbells: lie on a bench, palms facing in).','Keep a soft bend in the elbows and the chest proud.','Bring the arms together in a hugging arc until the hands meet, squeezing the chest.','Open slowly to a comfortable stretch (do not go below the shoulder line).'],'Do full reps first; a few extra half reps in the stretched position after failure is a good finisher. (Built with Science)'],
+[/push-up|push up|pushup|dip push-up/i,['Hands slightly wider than shoulders, body in one straight line, glutes and abs tight.','Lower the chest to the floor with elbows about 45° from the torso.','Press the floor away until the arms are straight.','Use a band for more resistance, or raise the hands (incline) to make it easier.'],''],
+[/chest dips|^tricep dips|machine assisted chest dips|machine assisted tricep dips/i,['Support yourself on the bars (or machine) with arms straight and shoulders down.','Lean the torso slightly forward for chest; stay more upright for triceps.','Lower until the upper arms are about parallel to the floor or you feel a deep stretch.','Press back up to just short of lockout. Do not let the shoulders roll forward.'],'Built with Science: forward lean = chest, upright = triceps.'],
+[/seated dumbbell shoulder press|standing dumbbell shoulder press|seated neutral-grip|arnold press|shoulder press \(machine\)|standing banded shoulder press/i,['Set the bench 1–2 notches down from upright (or stand tall with ribs down), dumbbells at shoulder height.','Press in the scapular plane: elbows about 20–30° in front of the torso rather than straight out to the sides.','Press until the arms are nearly straight overhead without shrugging.','Lower under control, tucking the elbows slightly in front.'],'Built with Science: press in the scapular plane.'],
+[/standing barbell overhead press|half kneeling landmine press/i,['Grip just outside the shoulders, bar at the collarbone, elbows slightly in front of the bar. Squeeze the glutes and brace the abs.','Move your head back slightly and press the bar straight up in a line over mid-foot.','Push the head through at the top so the bar is directly over the shoulders/hips; do not lean back.','Lower to the collarbone under control.'],''],
+[/lateral raise|lean in lateral|lying incline lateral|lu raises/i,['Stand (or lie on an incline bench) with a slight bend in the elbows and ribs down.','Raise the arms out to the sides (LU raises: lower arms up and slightly forward) to about shoulder height, leading with the elbows.','Pause briefly at the top without shrugging.','Lower slowly; do not swing the weight.'],'Cables: set them 3–4 notches up from the bottom for behind-the-body raises. (Built with Science)'],
+[/rear delt cable fly|reverse pec deck|dumbbell reverse flyes|banded standing reverse flyes|banded kneeling rear delt/i,['Set the handles around shoulder height (dumbbells: hinge forward with a flat back). Cross the cables (right hand to the left handle) for a deeper stretch.','Keep a slight bend in the elbows and the neck neutral.','Sweep the arms out and back in a wide arc, squeezing the rear delts and upper back.','Return slowly to a full stretch; keep the traps relaxed.'],'Built with Science: cable slightly above shoulder height, arms crossing at the start.'],
+[/front raises/i,['Stand tall with the weight in front of the thighs, slight bend in the elbows.','Raise the arms forward to about shoulder height, no higher.','Pause, then lower slowly. Do not swing or lean back.'],''],
+[/wide grip barbell upright row/i,['Hold the bar with a wide grip, standing tall, bar at the thighs.','Pull the bar up along the body, leading with the elbows (keep them higher than the hands).','Stop around chest height, then lower slowly.'],'Imagine the only goal is to get the elbows as high as possible. (Built with Science)'],
+[/overhead.*extension|overhead rope|cross cable tricep|banded single arm overhead|incline dumbbell overhead/i,['Set the cable about hip height (or use a dumbbell), stand close so the load is heaviest at the stretched bottom; incline versions: lie back on an incline bench.','Keep the upper arm locked straight up beside the head (elbows pointing forward, not flared).','Extend until the arms are straight, squeezing the triceps.','Lower slowly, letting the hands travel as far behind the head as possible for a deep stretch.'],'Built with Science: do not stop halfway down; keep the upper arm vertical even when tired.'],
+[/pushdown|bar pushdowns|banded tricep pushdown/i,['Stand close to the cable, elbows pinned to your sides, chest tall.','Press the bar/rope down until the arms are fully straight, squeezing the triceps.','Return slowly until the forearms are just past 90°. Keep the elbows from drifting forward.'],''],
+[/skullcrusher|jm press|close.grip.*press|close grip dumbbell|bodyweight tricep ext|bodyweight close-grip|triceps kickback/i,['Set up lying on a bench (or hinge forward for kickbacks) with the upper arms in position and shoulders stable.','Move only at the elbows: lower the weight toward the forehead/behind the head (or press with the elbows tucked for close-grip presses).','Extend until the arms are straight, squeezing the triceps.','Control the descent; keep the elbows from flaring.'],''],
+[/behind body cable curls|lying dumbbell curls|dumbbell spider|incline hammer preacher|reverse preacher/i,['Set the cable around wrist height (behind-body), or lie on a flat/incline bench, so the arms hang behind the body for maximum stretch.','Keep the upper arm fixed and the elbows slightly behind the torso.','Curl up, squeezing the biceps at the top without swinging.','Lower slowly to a full stretch.'],'Built with Science: arms behind the body = biceps stretched and hardest near the bottom.'],
+[/incline dumbbell curls|dumbbell preacher curl|preacher curl|seated dumbbell curls/i,['Set the bench to about 45–60° (preacher: adjust the pad so the armpits sit on the top) and let the arms hang or rest fully supported.','Keep the upper arm still and curl the weight up, rotating the palm up.','Squeeze at the top, then lower slowly to a full stretch without letting the shoulders roll forward.'],''],
+[/curl/i,['Stand tall (or sit), elbows tucked at the sides, shoulders down.','Curl the weight up without swinging the torso; keep the elbows still.','Squeeze the biceps at the top, then lower slowly to full extension.','For hammer/neutral-grip curls keep the palms facing each other; for reverse curls, palms down.'],''],
+[/wrist/i,['Rest the forearms on a bench or thighs with the hands hanging over the edge.','Curl (palms up) or extend (palms down) the wrist through the full range.','Lower slowly and keep the forearms still; use light weight and higher reps.'],''],
+[/shrugs/i,['Stand tall with the weight at your sides (cable: at the sides, bar: in front of the thighs), arms straight.','Shrug the shoulders straight up toward the ears (not rolling).','Pause at the top for a second, then lower slowly to a full stretch.'],''],
+[/face pull/i,['Set a cable (rope) at about face height (dumbbell version: hinge forward with a flat back).','Pull the rope toward your face with elbows high and wide, rotating the hands outward.','Squeeze the rear delts and upper back, then return slowly under control.'],''],
+[/pullover|straight arm pulldown/i,['Set up with a slight bend in the elbows and ribs down (dumbbell: lie across or along a bench; cable/band: hinge slightly).','Keeping the arms nearly straight, sweep the weight in an arc until the lats are fully contracted (pullover: lower until the lats stretch).','Return under control without arching the lower back.'],''],
+[/hanging leg raise|captain.s chair|bodyweight lying leg raises|garhammer/i,['Hang from a bar (or support yourself in the captain\'s chair) with the shoulders down and core braced; no swinging.','Raise the legs by curling the pelvis up (tilt it) rather than just flexing the hips; knees bent or straight to adjust difficulty.','Lower slowly under control; do not let the body swing.'],''],
+[/reverse crunch/i,['Lie on a bench or mat with the legs bent to 90° (hold something behind the head for stability).','Raise the hips by pulling the knees toward the chest and curling the pelvis up.','Lower slowly with control; do not swing the legs.'],'Built with Science: lower slowly under control.'],
+[/crunch|sit ups|sit-ups|ab mat|v-ups|bicycle|butterfly|mountain climber/i,['Set up with the lower back supported (or braced) and ribs pulled down toward the pelvis.','Curl the torso (cable: round the spine and bring the elbows toward the knees) rather than hinging at the hips.','Squeeze the abs at the top, then return slowly. Exhale on the way up.'],''],
+[/ab roller|dragon flag|hollow body/i,['Brace the abs, tuck the pelvis and keep the ribs down.','Move slowly as far as you can while keeping the lower back from arching (roller: roll out from the knees; dragon flag: lower the body as one rigid line).','Pull back using the abs; stop the set when the form breaks.'],''],
+[/plank|dead bug|bird dog|windshield|russian twist|palloff|side plank/i,['Brace the core as if about to be poked in the stomach; keep the ribs down and the spine neutral.','Move (or hold) slowly and with control; do not let the hips sag or rotate.','Breathe steadily. Stop the set when the form breaks.'],'For holds, log the seconds as reps.'],
+[/farmer|dead hang/i,['Stand tall (or hang from a bar) with the shoulders pulled down and packed, core braced.','Walk with controlled steps (farmer) / hold a full dead hang (hang) with a tight grip.','Keep the posture tall; stop when the form or grip fails.'],'For holds, log the seconds as reps.'],
+[/hyperextension|bench reverse hyperextension/i,['Set the pad at the hip crease and lock the feet in; cross the arms or hold a plate.','Hinge at the hips, lowering the torso with a flat back.','Squeeze the glutes (and hamstrings) to raise the torso to a straight line; do not hyperextend the lower back.'],''],
+[/kickback|donkey kick|side lying|hip abduction|lateral band walk|hip adduction|banded hip abduction/i,['Set the machine/cable/band so the resistance stays constant and the hips stay square (do not lean or rotate).','Move the leg through the full range, squeezing the target muscle (glutes/abductors/adductors) at the end.','Return slowly; avoid momentum or arching the lower back.'],''],
+[/kettlebell swing/i,['Stand a bit wider than the hips, hinge back and swing the bell between the legs.','Snap the hips forward powerfully; the bell floats to chest height with straight arms.','Let it swing back as you hinge again; keep the back flat throughout.'],''],
+[/wall slides|cat cow|world.s greatest stretch|prone arm circles|front lever|chest-to-wall handstand|scapular pull/i,['Move slowly through the full range of motion with control.','Keep the ribs down and the neck neutral; breathe steadily.','Stop short of pain; quality over quantity.'],'Mobility/skill movement: log reps or seconds as you prefer.']
+];
+
+function stepsFor(name){
+  const base=name.replace(/\s*\(\*[^)]*\)/g,'');
+  let steps=null,tip='';
+  for(const [re,s,t] of OV){if(re.test(base)){steps=s.slice();tip=t;break}}
+  if(!steps){steps=['Set up with a stable, braced position and control the weight through the full range of motion.','Move only the target joint(s); do not use momentum.','Pause briefly at the point of peak contraction, then lower slowly.','Stop the set when your form starts to break down.'];tip=''}
+  const l=name.toLowerCase();
+  if(/banded|band/.test(l)&&!/band assisted/.test(l))steps.push('Anchor the band securely and keep constant tension on it through the whole rep.');
+  if(/machine|smith/.test(l)&&!/ab mat|assisted/.test(l))steps.push('Adjust the seat/pads so the machine\'s pivot lines up with the working joint before you start.');
+  if(/\(\*shoulder friendly\)|neutral.grip/.test(l))tip=(tip?tip+' ':'')+'Shoulder-friendly variation: the neutral grip keeps the shoulder joint in a more comfortable position.';
+  if(/\*knee friendly/.test(l))tip=(tip?tip+' ':'')+'Knee-friendly variation: keep the shin more vertical and avoid knee cave.';
+  if(/\*lower back friendly/.test(l))tip=(tip?tip+' ':'')+'Lower-back-friendly variation: keep a more upright torso.';
+  if(/\*elbow friendly/.test(l))tip=(tip?tip+' ':'')+'Elbow-friendly variation: use a comfortable grip and keep the elbows tucked.';
+  return{steps,tip};
+}
+function defs(name){const l=name.toLowerCase();let sets=3,lo=8,hi=12,rest=90,side=false;
+  if(/barbell (back )?squat|front squat|barbell deadlift|sumo deadlift|trap bar|barbell bench|barbell hip thrust|standing barbell overhead|zercher/.test(l)&&!/progression/.test(l)){lo=5;hi=8;rest=180}
+  else if(/deadlift|squat|press|row|pulldown|pull-up|chin-up|dip|lunge|thrust|leg press|step/.test(l)){lo=8;hi=12;rest=120}
+  else if(/calf|tibialis|crunch|raises|ab |v-ups|hollow|bicycle|russian|mountain|butterfly|sit up/.test(l)&&!/lateral raise|front raise|lu raises/.test(l)){lo=10;hi=20;rest=60}
+  else if(/curl|extension|fly|flye|lateral|reverse|kickback|pushdown|shrug|face pull|abduction|adduction|pullover/.test(l)){lo=10;hi=15;rest=75}
+  if(/plank|dead bug|bird dog|hold|dead hang|carry|windshield|palloff/.test(l)){lo=20;hi=45;rest=60}
+  if(/single|one arm|bulgarian|split squat|lunge|step-up|step up|step down|pistol|kickback|side lying|side plank|palloff|unilateral|donkey/.test(l))side=true;
+  return{sets,lo,hi,rest,side}}
+
+/* build the library */
+const LIBX={};
+for(const m of MUSCLES)for(const n of LIBRAW[m]){const id=exId(n);if(!LIBX[id]){const g=stepsFor(n);LIBX[id]={id,name:n,muscle:m,muscles:[m],steps:g.steps,tip:g.tip}}else if(!LIBX[id].muscles.includes(m))LIBX[id].muscles.push(m)}
+const EXD=id=>LIBX[id]||(S&&S.custom&&S.custom[id])||{id,name:'(deleted exercise)',muscle:'Core',steps:[],tip:''};
+const allEx=()=>Object.values(LIBX).concat(Object.values((S&&S.custom)||{}));
+
+function seed(){
+  const PUB=!!window.PUBLIC_BUILD;
+  const S={v:2,name:'Friend',
+    goal:{type:'Build Muscle',pace:'Set your goal in Progress → Change',started:today(),startWeight:0},
+    tgt:{calMin:2000,calMax:2200,p:[100,150],c:[200,260],f:[55,75]},
+    custom:{},exnotes:{},workouts:{},plans:{},activePlan:null,logs:[],active:null,weights:{},foods:{},meals:{},foodLog:{},lastBackup:null};
+  const E=n=>{const id=exId(n);if(!LIBX[id])throw new Error('seed: unknown exercise '+n);return id};
+  // [name, sets, lo, hi, rest, perSide]
+  const W=(id,name,items)=>S.workouts[id]={id,name,items:items.map(([n,sets,lo,hi,rest,side])=>({ex:E(n),sets,lo,hi,rest,side:!!side,note:''}))};
+  W('w_pull','Pull',[['Lat Pulldowns',3,8,12,120],['Dumbbell Chest Supported Row (mid/upper back focused)',3,8,12,120],['Kneeling One Arm Lat Pulldown',3,10,15,90,1],['Barbell Row (Lat Focused)',3,8,12,120],['Reverse Pec Deck',3,10,15,90],['Dumbbell Shrugs',3,10,15,90],['Incline Dumbbell Curls',3,8,12,90],['Hanging Leg Raises',3,8,15,60],['Preacher Curl (Machine)',3,8,12,90]]);
+  W('w_push','Push',[['Low Incline Dumbbell Press',3,8,12,120],['Seated Dumbbell Shoulder Press',3,8,12,120],['Pec-Deck Machine Fly',3,10,15,90],['LU Raises',3,10,20,60],['Dumbbell Overhead Tricep Extensions',3,10,15,75]]);
+  W('w_legs','Legs',[['Quad-Focused Leg Press',3,8,12,120],['Dumbbell Romanian Deadlift (Hamstring Focused)',3,10,15,120],['Bulgarian Split Squat (Glute Focused)',3,8,12,120,1],['Seated Leg Curls',3,10,15,90],['Seated Leg Extensions',3,10,15,90],['Bodyweight Single Leg Calf Raises',3,10,20,60,1],['Hanging Leg Raises',2,8,15,60]]);
+  W('w_mixed','Mixed Functional & Longevity',[['Dumbbell Romanian Deadlift (Hamstring Focused)',5,3,5,180],['Chest Supported Dumbbell Row (lat focused)',3,8,12,120],['Lat Pulldowns',3,8,12,120],['Push-Ups (bands optional)',3,4,6,90],['Hanging Leg Raises',3,8,15,60],['Reverse Crunches',3,10,20,60],['Tricep Dips',3,10,15,90],['Hammer Curls',3,8,12,75]]);
+  W('w_endur','Endurance and Cardio',[['Front Squat',5,4,6,180],['Standing Barbell Overhead Press',5,6,8,150],['Standing Mid-Chest Cable Fly',3,10,15,75],['Dumbbell Overhead Tricep Extensions',3,10,15,75],['Dumbbell Shrugs',3,10,15,75],['Seated Weighted Calf Raises',2,10,15,60],['Pull-Ups',3,3,5,120],['Dumbbell Preacher Curl',2,8,12,75,1]]);
+  W('w_strength','Strength and Power',[['Barbell Deadlift',5,4,6,180],['Goblet Squat (*lower back friendly)',3,6,8,120],['Pull-Ups',3,6,8,120],['Flat Dumbbell Press',3,8,12,120],['Bulgarian Split Squat (Glute Focused)',3,8,12,120,1],['Palloff Press',2,5,10,60,1]]);
+  S.plans.p_ppl={id:'p_ppl',name:'Intermediate: 3-Day PPL',created:'2026-02-02',custom:false,days:[null,'w_pull',null,'w_push',null,'w_legs',null]};
+  S.plans.p_long={id:'p_long',name:'Longevity, Endurance and Strength',created:'2025-09-20',custom:true,days:[null,'w_mixed',null,'w_endur',null,'w_strength',null]};
+  S.activePlan='p_ppl';
+  /* history visible in your recordings */
+  const L=(date,wid,name,exs)=>S.logs.push({id:uid(),date,workoutId:wid,name,start:0,dur:0,exercises:exs.map(([n,sets])=>({ex:E(n),notes:'',sets:sets.map(([kg,reps,eff])=>({kg,reps,effort:eff||'max'}))}))});
+  S.logs.sort((a,b)=>a.date<b.date?-1:1);
+  /* foods: carbs/fat are estimates, edit as needed */
+  const F=(name,brand,unit,kcal,p,c,f)=>{const id='f_'+uid();S.foods[id]={id,name,brand,unit,kcal,p,c,f,uses:0};return id};
+  return S;
+}
+
+/* ============ store ============ */
+const KEY='myfitness_v2';let S;let PERSISTED=null;
+function load(){try{const r=localStorage.getItem(KEY);if(r){S=JSON.parse(r);return}
+  S=seed();const old=localStorage.getItem('myfitness_v1');if(old){try{migrate(JSON.parse(old))}catch(e){}}}catch(e){S=S||seed()}save()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function migrate(o){const n=S;['name','goal','tgt','weights','foods','meals','foodLog','lastBackup'].forEach(k=>{if(o[k]!=null)n[k]=o[k]});
+  const fix=exs=>(exs||[]).forEach(e=>{if(!LIBX[e.ex]&&!n.custom[e.ex]){const old=(o.exercises||{})[e.ex];n.custom[e.ex]={id:e.ex,name:old?old.name:'(deleted exercise)',muscle:old?old.muscle:'Core',steps:[],tip:'',custom:1}}});
+  Object.values(o.exercises||{}).filter(x=>x.custom).forEach(x=>{n.custom[x.id]={id:x.id,name:x.name,muscle:x.muscle,steps:[],tip:'',custom:1}});
+  n.logs=o.logs||n.logs;n.logs.forEach(l=>fix(l.exercises));if(o.active){fix(o.active.exercises);n.active=o.active}}
+const store=()=>S;
+
+/* ============ domain helpers ============ */
+const dateOf=s=>parse(s).getDay();
+const plan=()=>S.plans[S.activePlan]||Object.values(S.plans)[0];
+const wkFor=date=>{const p=plan();const id=p&&p.days[dateOf(date)];return id?S.workouts[id]:null};
+const logOn=date=>S.logs.find(l=>l.date===date);
+const exName=id=>EXD(id).name;
+const initials=n=>n.split(/[\s(]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
+const vol=(sets)=>sets.reduce((a,s)=>a+num(s.kg)*num(s.reps),0);
+const logVol=l=>l.exercises.reduce((a,e)=>a+vol(e.sets),0);
+function prevSets(exId,beforeDate){ // most recent completed session before date
+  for(let i=S.logs.length-1;i>=0;i--){const l=S.logs[i];if(beforeDate&&l.date>=beforeDate&&l!==S._cur)continue;
+    const e=l.exercises.find(x=>x.ex===exId&&x.sets.length);if(e)return{sets:e.sets,log:l}}return null}
+function fitem(e){ // food log entry -> numbers
+  const q=e.qty||1;
+  if(e.quick)return{name:e.quick.name||'Quick log',sub:'Quick log',kcal:e.quick.kcal,p:e.quick.p,c:e.quick.c,f:e.quick.f};
+  if(e.meal){const m=S.meals[e.meal];if(!m)return{name:'(deleted)',sub:'',kcal:0,p:0,c:0,f:0};const t=mealTot(m);return{name:m.name,sub:q+' × meal',kcal:t.kcal*q,p:t.p*q,c:t.c*q,f:t.f*q}}
+  const f=S.foods[e.food];if(!f)return{name:'(deleted food)',sub:'',kcal:0,p:0,c:0,f:0};
+  return{name:f.name,sub:(q!==1?q+' × ':'')+f.unit+(f.brand?' · '+f.brand:''),kcal:f.kcal*q,p:f.p*q,c:f.c*q,f:f.f*q}}
+function mealTot(m){if(m.fixed)return m.fixed;return m.items.reduce((a,i)=>{const f=S.foods[i.food];if(!f)return a;const q=i.qty||1;a.kcal+=f.kcal*q;a.p+=f.p*q;a.c+=f.c*q;a.f+=f.f*q;return a},{kcal:0,p:0,c:0,f:0})}
+const MEALS=['Breakfast','Lunch','Dinner','Snacks'];
+function dayFood(date){const d=S.foodLog[date]||{};const t={kcal:0,p:0,c:0,f:0,n:0};for(const m of MEALS)for(const e of d[m]||[]){const i=fitem(e);t.kcal+=i.kcal;t.p+=i.p;t.c+=i.c;t.f+=i.f;t.n++}return t}
+function mealTotals(date,m){const t={kcal:0,p:0,n:0};for(const e of(S.foodLog[date]||{})[m]||[]){const i=fitem(e);t.kcal+=i.kcal;t.p+=i.p;t.n++}return t}
+function lastWeight(upTo){const ds=Object.keys(S.weights).filter(d=>d<=upTo).sort();const d=ds[ds.length-1];return d?{d,w:S.weights[d]}:null}
+function streak(){let n=0,d=today();const act=x=>S.weights[x]||logOn(x)||dayFood(x).n;if(!act(d))d=addDays(d,-1);while(act(d)){n++;d=addDays(d,-1)}return n}
+function dayProgress(date){let t=0,k=0;t++;if(S.weights[date])k++;if(wkFor(date)||logOn(date)){t++;if(logOn(date))k++}t++;if(dayFood(date).n)k++;return k/t*100}
+
+/* ============ UI state ============ */
+let ui={tab:'dash',date:today(),wk:0,stack:[],sheet:null,ndate:today(),ptab:'weight',range:30,exSel:null,mtab:'food',wtab:'sched'};
+let restT=null;let toastT=null;
+const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)};
+const topv=()=>ui.stack[ui.stack.length-1];
+const go=v=>{ui.stack.push(v);render(false)};
+const back=()=>{ui.stack.pop();render(false)};
+const sheet=s=>{ui.sheet=s;renderSheet()};
+const closeSheet=()=>{ui.sheet=null;renderSheet()};
+
+/* ============ charts ============ */
+function line(pts,{h=150,fmt=v=>r1(v)}={}){
+  if(pts.length<1)return '<div class="mut sm" style="padding:20px 0;text-align:center">No data yet</div>';
+  const W=320,H=h,P=26;const ys=pts.map(p=>p.y);let mn=Math.min(...ys),mx=Math.max(...ys);if(mn===mx){mn-=1;mx+=1}const pd=(mx-mn)*.15;mn-=pd;mx+=pd;
+  const X=i=>pts.length===1?W/2:P+i*(W-2*P)/(pts.length-1),Y=y=>H-P-(y-mn)/(mx-mn)*(H-2*P);
+  const path=pts.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+','+Y(p.y).toFixed(1)).join(' ');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%"><path d="${path}" fill="none" stroke="#5b8def" stroke-width="2"/>`+
+   pts.map((p,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="3" fill="#5b8def"/>`).join('')+
+   `<text x="2" y="${Y(Math.max(...ys))-6}">${fmt(Math.max(...ys))}</text><text x="2" y="${Y(Math.min(...ys))+14}">${fmt(Math.min(...ys))}</text>`+
+   `<text x="${P}" y="${H-4}">${esc(pts[0].l||'')}</text><text x="${W-P}" y="${H-4}" text-anchor="end">${esc(pts[pts.length-1].l||'')}</text></svg>`}
+
+/* ============ views ============ */
+const NAVI=[['dash','⌂','Dashboard'],['nut','🍎','Nutrition'],['wk','🏋','Workout'],['prog','📈','Progress']];
+function render(keep=true){
+  const y=scrollY;const v=topv();let h;
+  if(v){h=({preview:vPreview,active:vActive,summary:vSummary,exercise:vExercise,weditor:vWEditor,settings:vSettings,foods:vFoods,programs:vPrograms,plan:vPlan})[v.t](v)}
+  else{h=({dash:vDash,nut:vNut,wk:vWk,prog:vProg})[ui.tab]()+
+    `<div class="nav"><div>${NAVI.map(n=>`<button class="${ui.tab===n[0]?'on':''}" data-a="tab" data-t="${n[0]}"><i>${n[1]}</i>${n[2]}</button>`).join('')}</div></div>`}
+  $('#app').innerHTML=h;
+  if(v&&v.t==='active'&&restT)drawRest();
+  scrollTo(0,keep?y:0);renderSheet();renderRest();
+}
+const header=(title,left)=>`<div class="top">${left||''}<div class="ttl">${title}</div><button class="ib" data-a="settings">⚙</button></div>`;
+const backBtn='<button class="ib" data-a="back">←</button>';
+
+/* ---- Dashboard ---- */
+function vDash(){
+  const wkStart=addDays(today(),-dateOf(today())+ui.wk*7);
+  const days=[...Array(7)].map((_,i)=>addDays(wkStart,i));
+  const d=ui.date;const w=wkFor(d),lg=logOn(d),wt=S.weights[d],fo=dayFood(d),lw=lastWeight(d);
+  const label=ui.wk===0?'This Week':fd(days[0])+' - '+fd(days[6]);
+  const greet=d===today()?(()=>{const h=new Date().getHours();return(h<12?'Morning':h<17?'Afternoon':'Evening')+', '+esc(S.name)+'!'})():esc(DOWL[dateOf(d)]+', '+fd(d));
+  const items=[];
+  items.push(`<button class="chk ${wt?'done':''}" data-a="weigh"><div class="ic">⚖</div><div class="sp"><div class="xs mut">${wt?'Weight':'Log your weight'}</div><div>${wt?wt.toFixed(1)+' kg '+(d===today()?'today':'logged'):(lw?'Last: '+lw.w.toFixed(1)+' kg · '+diffDays(d,lw.d)+' days ago':'No weigh-in yet')}</div></div>${wt?'<div class="tick">✓</div>':'<span class="mut">›</span>'}</button>`);
+  if(lg)items.push(`<button class="chk done" data-a="openlog" data-id="${lg.id}"><div class="ic">🏋</div><div class="sp"><div class="xs mut">Workout</div><div>${esc(lg.name)} complete</div></div><div class="tick">✓</div></button>`);
+  else if(w)items.push(`<button class="chk" data-a="prev" data-w="${w.id}" data-d="${d}"><div class="ic">🏋</div><div class="sp"><div>Complete your workout</div><div class="xs mut">${esc(w.name)} · ${w.items.length} exercises</div></div><span class="mut">›</span></button>`);
+  else items.push(`<button class="chk" data-a="tab" data-t="wk"><div class="ic">😴</div><div class="sp"><div>Rest day</div><div class="xs mut">Tap to add a workout</div></div><span class="mut">›</span></button>`);
+  items.push(`<button class="chk ${fo.n?'done':''}" data-a="nutDay" data-d="${d}"><div class="ic">🍴</div><div class="sp"><div>${fo.n?'Food log':'Update your food log'}</div><div class="xs mut">${fo.n?Math.round(fo.kcal)+' kcal · '+Math.round(fo.p)+' g protein':'Start logging today'}</div></div>${fo.n?'<div class="tick">✓</div>':'<span class="mut">›</span>'}</button>`);
+  const done=items.filter(x=>x.includes('class="chk done')).length;
+  return `<div class="top"><span class="pill g">🔥 ${streak()}</span><button class="ib" data-a="wkNav" data-n="-1">‹</button><button class="sp b" data-a="wkNav" data-n="0">${label}</button><button class="ib" data-a="wkNav" data-n="1">›</button><button class="ib" data-a="settings">⚙</button></div>
+  <div class="week">${days.map((x,i)=>`<button class="day ${x===d?'sel':''} ${x===today()?'today':''}" data-a="pickday" data-d="${x}">${'SMTWTFS'[i]}<span class="c" style="--p:${dayProgress(x)}"><b>${parse(x).getDate()}</b></span></button>`).join('')}</div>
+  <h2 style="margin:18px 0 4px;font-size:24px">${greet}</h2>
+  <div class="row" style="margin:12px 0 0"><h3 class="sp" style="font-weight:500">${d===today()?"Today's":fd(d)+"'s"} Checklist</h3><span class="sm mut">${done}/${items.length} completed</span></div>
+  ${items.join('')}
+  ${d!==today()?'<div style="position:fixed;bottom:76px;left:0;right:0;text-align:center"><button class="btn sm2" style="box-shadow:0 4px 16px #0008" data-a="pickday" data-d="'+today()+'" data-reset="1">📅 Back to Today</button></div>':''}`;
+}
+
+/* ---- Nutrition ---- */
+function vNut(){
+  const d=ui.nd||ui.ndate,tot=dayFood(d),T=S.tgt;const rem=!!ui.remain;
+  const mac=(l,v,[a,b])=>`<div class="sp"><div>${l}</div><div class="bar ${v>b?'over':''}" style="margin:6px 0"><i style="width:${Math.min(100,v/b*100)}%"></i></div><div class="xs mut">${rem?Math.max(0,Math.round(a-v))+' / '+a+'-'+b+'g':Math.round(v)+' / '+a+'-'+b+'g'}</div></div>`;
+  const cal=rem?Math.max(0,Math.round(T.calMin-tot.kcal)):Math.round(tot.kcal);
+  return `<div class="top"><button class="ib" data-a="ndate" data-n="-1">‹</button><button class="ttl" data-a="ndate" data-n="0">${d===today()?'Today, ':''}${fd(d)}</button><button class="ib" data-a="ndate" data-n="1">›</button><button class="ib" data-a="settings">⚙</button></div>
+  <div class="card"><div class="seg" style="width:220px;margin:0 0 10px"><button class="${rem?'':'on'}" data-a="remain" data-v="0">Consumed</button><button class="${rem?'on':''}" data-a="remain" data-v="1">Remaining</button></div>
+   <div><span class="big">${cal}</span> <span class="mut">/ ${T.calMin}-${T.calMax} kcal</span></div>
+   <div class="bar ${tot.kcal>T.calMax?'over':''}" style="margin:12px 0 14px"><i style="width:${Math.min(100,tot.kcal/T.calMax*100)}%"></i></div>
+   <div class="row" style="gap:14px">${mac('Protein',tot.p,T.p)}${mac('Carbs',tot.c,T.c)}${mac('Fat',tot.f,T.f)}</div></div>
+  <div class="row" style="margin:16px 0 6px"><h2 class="sp" style="font-size:20px">Food Log</h2><button class="ib" data-a="foodsMgr" title="My foods">⚙</button><button class="ib" data-a="copyPrev" title="Copy previous day">⧉</button></div>
+  ${MEALS.map(m=>{const t=mealTotals(d,m),es=(S.foodLog[d]||{})[m]||[];
+    return `<div class="card"><div class="row"><b class="sp" style="font-size:17px">${m}</b><span class="pill">${Math.round(t.kcal)} kcal</span><span class="pill p">${Math.round(t.p)} P</span><button class="ib" style="color:var(--ac2)" data-a="addFood" data-m="${m}">＋</button></div>
+    ${es.length?es.map((e,i)=>{const it=fitem(e);return `<button class="row" style="width:100%;text-align:left;padding:10px 0;border-top:1px solid var(--line);margin-top:8px" data-a="editEntry" data-m="${m}" data-i="${i}"><div class="sp"><div>${esc(it.name)}</div><div class="xs mut">${esc(it.sub)}</div></div><div class="sm" style="text-align:right">${Math.round(it.kcal)} kcal<div class="xs mut">${r1(it.p)} P</div></div></button>`}).join('')+`<button class="sm mut" style="margin-top:6px" data-a="saveMeal" data-m="${m}">★ Save as meal</button>`
+    :`<div class="mut sm" style="text-align:center;padding:14px 0 4px">No food logged yet<br>Tap the + button to add food</div>`}</div>`}).join('')}`;
+}
+
+/* ---- Workout tab ---- */
+function vWk(){
+  const p=plan();const t=today();const ws=addDays(t,-dateOf(t));
+  const ws_=Object.values(S.workouts);
+  return `<div class="top"><div class="sp"><div class="xs mut">Plan</div><button class="b" data-a="plansSheet" style="font-size:17px">${esc(p?p.name:'No plan')} ▾</button></div><button class="ib" data-a="settings">⚙</button></div>
+  <div class="row" style="margin:10px 0 4px"><h2 class="sp" style="font-size:20px">This Week's Schedule</h2></div>
+  ${[...Array(7)].map((_,i)=>{const d=addDays(ws,i),w=p&&p.days[i]?S.workouts[p.days[i]]:null,lg=logOn(d);const isT=d===t;
+    return `<div class="row" style="align-items:stretch"><div class="xs mut" style="width:34px;padding-top:16px">${DOW[i]}</div>
+    <div class="card sp" style="margin:6px 0;${isT?'border-color:var(--ac)':''}"><div class="row"><button class="sp" style="text-align:left" data-a="${lg?'openlog':w?'prev':'daySheet'}" data-id="${lg?lg.id:''}" data-w="${w?w.id:''}" data-d="${d}">
+      ${lg?`<div class="xs" style="color:var(--ok)">${isT?'TODAY · ':''}COMPLETE ✓</div><div class="b" style="font-size:17px">${esc(lg.name)}</div><div class="xs mut">${lg.exercises.length} exercises${lg.dur?', '+lg.dur+' min':''} · Review</div>`
+      :w?`${isT?'<div class="xs" style="color:var(--ac2)">TODAY</div>':''}<div class="b" style="font-size:17px">${esc(w.name)}</div><div class="xs mut">${w.items.length} exercises</div>`
+      :`${isT?'<div class="xs" style="color:var(--ac2)">TODAY</div>':''}<div class="b" style="font-size:17px">Rest Day</div>`}</button>
+      <button class="ib" data-a="daySheet" data-i="${i}" data-d="${d}">⋮</button></div></div></div>`}).join('')}
+  <div class="row" style="margin:20px 0 4px"><h2 class="sp" style="font-size:20px">My Workouts</h2><button class="btn sm2" data-a="newWorkout">＋ New</button></div>
+  ${ws_.map(w=>`<button class="ex" data-a="weditor" data-w="${w.id}"><div class="th">${initials(w.name)}</div><div class="sp"><div class="b">${esc(w.name)}</div><div class="xs mut">${w.items.length} exercises · ${w.items.reduce((a,i)=>a+i.sets,0)} sets</div></div><span class="mut">✎</span></button>`).join('')}`;
+}
+
+/* ---- Workout preview ---- */
+function muscleSplit(items){const m={};let tot=0;for(const i of items){const e=EXD(i.ex);m[e.muscle]=(m[e.muscle]||0)+i.sets;tot+=i.sets}return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,Math.round(v/tot*100)])}
+function vPreview(v){const w=S.workouts[v.w];if(!w){return header('Workout',backBtn)+'<p class="mut">Workout not found.</p>'}
+  const act=S.active&&S.active.workoutId===w.id&&S.active.date===v.d;
+  return `<div class="top">${backBtn}<div class="sp"><div class="xs mut">${DOWL[dateOf(v.d)]}'s Workout</div><div class="b" style="font-size:20px">${esc(w.name)}</div></div><button class="ib" data-a="weditor" data-w="${w.id}">✎</button></div>
+  <h3 style="margin:10px 0 6px">Target Muscles</h3><div class="muscle">${muscleSplit(w.items).map(([k,p])=>`<div class="card"><div class="b sm">${k}</div><div class="xs mut">${p}%</div></div>`).join('')}</div>
+  <h3 style="margin:18px 0 4px">${w.items.length} exercises</h3>
+  ${w.items.map(i=>`<button class="ex" data-a="exercise" data-e="${i.ex}"><div class="th">${initials(exName(i.ex))}</div><div class="sp"><div class="b">${esc(exName(i.ex))}</div><div class="xs mut">${i.sets} sets • ${i.lo}-${i.hi} reps</div></div><span class="mut">›</span></button>`).join('')}
+  <div style="position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%)"><div style="max-width:480px;margin:auto"><button class="btn" data-a="start" data-w="${w.id}" data-d="${v.d}">${act?'Resume Workout':'Start Workout'}</button></div></div>`}
+
+/* ---- Active workout ---- */
+function vActive(){const A=S.active;if(!A){return '<p>No active workout.</p>'}
+  const doneEx=A.exercises.filter(e=>e.sets.length&&e.sets.every(s=>s.effort)).length;
+  return `<div class="top">${backBtn}<div class="sp"><div class="xs mut">${A.date===today()?"Today's":fd(A.date)} Workout</div><div class="b" style="font-size:20px">${esc(A.name)}</div></div><button class="btn sm2" data-a="finish">✓ Finish</button></div>
+  <div class="row" style="margin-bottom:8px"><div class="bar sp"><i style="width:${A.exercises.length?doneEx/A.exercises.length*100:0}%"></i></div><span class="xs mut">${doneEx}/${A.exercises.length}</span></div>
+  ${A.exercises.map((e,ei)=>{const pv=prevSets(e.ex,A.date);const alldone=e.sets.length&&e.sets.every(s=>s.effort);
+   return `<div class="acard" id="ac${ei}"><div class="row" style="align-items:flex-start"><div class="th" style="width:44px;height:44px;border-radius:10px;background:var(--card2);display:grid;place-items:center;font-size:12px;color:var(--ac2);font-weight:700">${initials(exName(e.ex))}</div><div class="sp"><button class="h3b" data-a="exercise" data-e="${e.ex}"><h3>${esc(exName(e.ex))} <span class="mut xs">ⓘ</span></h3></button>${alldone?'<span class="done-b">✓ DONE</span>':'<span class="xs mut">'+e.sets.length+' sets • '+e.lo+'-'+e.hi+' reps'+(e.side?' per side':'')+'</span>'}</div><button class="ib" data-a="exMenu" data-ei="${ei}">⋮</button></div>
+    <input data-in="note" data-ei="${ei}" value="${esc(e.notes)}" placeholder="✎ Add notes..." style="margin:10px 0 4px;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:6px 0;font-size:14px">
+    <div class="sh"><span>SET</span><span style="text-align:center">PREVIOUS</span><span style="text-align:center">KG</span><span style="text-align:center">REPS</span><span style="text-align:center">EFFORT</span></div>
+    ${e.sets.map((s,si)=>{const p=pv&&(pv.sets[si]||pv.sets[pv.sets.length-1]);
+     return `<div class="swrap"><div class="sr ${s.effort?'ok':''}"><div class="n">${si+1}</div><div class="xs mut" style="text-align:center">${p?`${fkg(p.kg)} x ${p.reps}<span class="dot ${p.effort||''}"></span>`:'–'}</div>
+      <input inputmode="decimal" data-in="kg" data-ei="${ei}" data-si="${si}" value="${s.kg===''?'':s.kg}" placeholder="${p?fkg(p.kg):''}">
+      <input inputmode="numeric" data-in="reps" data-ei="${ei}" data-si="${si}" value="${s.reps===''?'':s.reps}" placeholder="${p?p.reps:''}">
+      <button class="ck" data-a="setck" data-ei="${ei}" data-si="${si}">${s.effort?'✓':''}</button></div><button class="sdel" data-a="delSet" data-ei="${ei}" data-si="${si}">🗑</button></div>`}).join('')}
+    <div class="g2" style="margin-top:10px"><button class="btn dim" data-a="rest" data-s="${e.rest}">⏱ Rest: ${fmtT(e.rest)}</button><button class="btn dim" data-a="addSet" data-ei="${ei}">＋ Add Set</button></div></div>`}).join('')}
+  <button class="btn ghost" data-a="addEx">⊕ Add Exercise</button><button class="btn red" data-a="discard" style="margin-top:8px">Discard Workout</button>`}
+
+/* ---- Summary ---- */
+function vSummary(v){const l=S.logs.find(x=>x.id===v.id);if(!l)return header('Workout',backBtn)+'Not found';
+  S._cur=l;const vv=logVol(l);
+  const prev=[...S.logs].reverse().find(x=>x!==l&&x.date<l.date&&(x.workoutId===l.workoutId||x.name===l.name));
+  S._cur=null;
+  const pct=prev&&logVol(prev)?Math.round((vv/logVol(prev)-1)*100):null;
+  return `<div class="top">${backBtn}<div class="sp"></div><button class="ib" style="color:var(--ac2)" data-a="shareLog" data-id="${l.id}">⤴</button><button class="btn sm2 dim" data-a="delLog" data-id="${l.id}">Delete</button></div>
+  <div class="mut sm">${DOWL[dateOf(l.date)]}</div><h1 style="font-size:28px;margin:2px 0 4px">${fd(l.date)} · ${esc(l.name)}</h1>
+  <div class="mut sm">${prev?'vs previous · last completed '+fd(prev.date,1):'First time logging this workout'}</div>
+  <div class="g2" style="margin:14px 0"><div class="card" style="margin:0"><div class="xs mut">VOLUME</div><div class="big" style="font-size:22px">${Math.round(vv).toLocaleString()} kg</div>${pct!==null?`<div class="sm" style="color:${pct>=0?'var(--ok)':'var(--bad)'}">${pct>=0?'↗ +':'↘ '}${pct}%</div>`:''}</div>
+  <div class="card" style="margin:0"><div class="xs mut">DURATION</div><div class="big" style="font-size:22px">${l.dur?l.dur+' min':'–'}</div>${prev&&prev.dur&&l.dur?`<div class="sm mut">${l.dur-prev.dur>=0?'+':''}${l.dur-prev.dur}m</div>`:''}</div></div>
+  <h3>${l.exercises.length} Exercises</h3>
+  ${l.exercises.map((e,i)=>{const pe=prev&&prev.exercises.find(x=>x.ex===e.ex);const pv=pe&&vol(pe.sets)?Math.round((vol(e.sets)/vol(pe.sets)-1)*100):null;
+   return `<div class="card"><div class="row"><div class="sp"><div class="b">${esc(exName(e.ex))}</div>${prev&&!pe?'<span class="pill g">+ ADDED</span>':pv!==null?`<span class="pill ${pv>=0?'g':''}">${pv>=0?'+':''}${pv}% volume vs. last time</span>`:''}</div><button class="ib" data-a="editSession" data-id="${l.id}" data-i="${i}">✎</button></div>
+   ${e.sets.map((s,si)=>`<div class="kv"><span class="mut">Set ${si+1}</span><span>${fkg(s.kg)} kg × ${s.reps}<span class="dot ${s.effort||''}"></span></span></div>`).join('')}${e.notes?`<div class="xs mut" style="margin-top:6px">📝 ${esc(e.notes)}</div>`:''}</div>`}).join('')}
+  <button class="btn" data-a="back" style="margin-top:12px">Done</button>`}
+
+/* ---- Exercise detail ---- */
+function vExercise(v){const e=EXD(v.e);const tab=v.tab||'guide';let body;
+  if(tab==='guide'){
+    body=`<h3 style="margin:8px 0 8px">Muscle Groups</h3><div class="row" style="margin-bottom:6px"><span class="pill">${esc(e.muscle)}</span><span class="pill g">PRIMARY</span></div>
+    <h3 style="margin:16px 0 4px">Exercise Instructions</h3>
+    ${e.tip?`<div class="card row" style="align-items:flex-start;margin:8px 0"><span>💡</span><div class="sm" style="color:var(--mut)">${esc(e.tip)}</div></div>`:''}
+    ${e.custom?`<label class="lbl">Steps (one per line)</label><textarea data-in="csteps" data-e="${e.id}" rows="6" placeholder="Write the steps…">${esc((e.steps||[]).join('\n'))}</textarea>`:
+      (e.steps.length?e.steps.map((t,i)=>`<div class="steprow"><b style="color:var(--ac2);width:26px;flex:none">${pad(i+1)}</b><div>${esc(t)}</div></div>`).join(''):'<div class="mut sm">No steps yet.</div>')}
+    <label class="lbl">My notes / cues (saved on this device)</label><textarea data-in="exnote" data-e="${e.id}" rows="3" placeholder="e.g. seat position 4, grip width, what to focus on…">${esc((S.exnotes||{})[e.id]||'')}</textarea>`}
+  else{const hs=S.logs.filter(l=>l.exercises.some(x=>x.ex===e.id));
+    let bw=null,bv=null;for(const l of hs)for(const x of l.exercises.filter(x=>x.ex===e.id))for(const s of x.sets){if(!bw||num(s.kg)>num(bw.s.kg)||(num(s.kg)===num(bw.s.kg)&&num(s.reps)>num(bw.s.reps)))bw={s,l};const sv=num(s.kg)*num(s.reps);if(!bv||sv>bv.v)bv={v:sv,s,l}}
+    body=`<h3 style="margin:8px 0">Personal Records</h3>${bw?`<div class="card"><div class="row"><span style="font-size:24px">🏆</span><div class="sp"><div class="xs mut">WEIGHT</div><div><b style="font-size:20px">${fkg(bw.s.kg)} kg</b> × ${bw.s.reps} reps</div></div><div class="xs mut" style="text-align:right">Heaviest Lift<br>${fd(bw.l.date,1)}</div></div></div>
+    <div class="card"><div class="row"><span style="font-size:24px">🏆</span><div class="sp"><div class="xs mut">VOLUME (best set)</div><div><b style="font-size:20px">${Math.round(bv.v)} kg</b> (${fkg(bv.s.kg)} kg × ${bv.s.reps})</div></div><div class="xs mut" style="text-align:right">Total Lifted<br>${fd(bv.l.date,1)}</div></div></div>
+    <h3 style="margin:14px 0 4px">Progress</h3><div class="card">${line(hs.map(l=>({y:Math.max(...l.exercises.filter(x=>x.ex===e.id).flatMap(x=>x.sets.map(s=>num(s.kg)))),l:fd(l.date)})).slice(-12),{})}<div class="xs mut" style="text-align:center">Top set weight (kg) per session</div></div>`:'<div class="card mut">No sessions logged yet.</div>'}
+    <h3 style="margin:14px 0 4px">Exercise History</h3>${[...hs].reverse().map(l=>{const x=l.exercises.find(x=>x.ex===e.id);return `<div class="card"><div class="row"><div class="sp"><div class="xs mut">${fd(l.date,1)}</div><div>${esc(l.name)}</div></div><button class="btn sm2 dim" data-a="editSession" data-id="${l.id}" data-i="${l.exercises.indexOf(x)}">✎ Edit</button></div>
+      ${x.sets.map((s,i)=>`<div class="kv"><span class="mut">Set ${i+1}</span><span>${fkg(s.kg)} kgs x ${s.reps}<span class="dot ${s.effort||''}"></span></span></div>`).join('')}</div>`}).join('')}`}
+  return `<div class="top">${backBtn}<div class="ttl">${esc(e.name)}</div><div style="width:38px"></div></div>
+  <div class="seg"><button class="${tab==='guide'?'on':''}" data-a="extab" data-t="guide">Form Guide</button><button class="${tab==='hist'?'on':''}" data-a="extab" data-t="hist">History</button></div>${body}`}
+
+/* ---- Workout editor ---- */
+function vWEditor(v){const w=S.workouts[v.w];if(!w)return header('Workout',backBtn)+'Not found';
+  return `<div class="top">${backBtn}<div class="ttl">Edit Workout</div><button class="ib" data-a="delWorkout" data-w="${w.id}" style="color:var(--bad)">🗑</button></div>
+  <label class="lbl">Name</label><input data-in="wname" data-w="${w.id}" value="${esc(w.name)}">
+  <div class="row" style="margin:16px 0 4px"><h3 class="sp">${w.items.length} exercises</h3><span class="xs mut">${w.items.reduce((a,i)=>a+i.sets,0)} sets</span></div>
+  <div class="xs mut" style="margin-bottom:6px">Pick exercises, then set your ideal sets, rep range and rest for each.</div>
+  ${w.items.map((i,n)=>`<div class="card"><div class="row"><button class="sp h3b b" data-a="exercise" data-e="${i.ex}">${esc(exName(i.ex))} <span class="mut xs">ⓘ</span></button><button class="ib" data-a="wUp" data-w="${w.id}" data-n="${n}">↑</button><button class="ib" data-a="wDn" data-w="${w.id}" data-n="${n}">↓</button><button class="ib" style="color:var(--bad)" data-a="wRm" data-w="${w.id}" data-n="${n}">✕</button></div>
+   <div class="g2" style="grid-template-columns:repeat(4,1fr);margin-top:8px">${[['sets','Sets'],['lo','Min reps'],['hi','Max reps'],['rest','Rest (s)']].map(([k,l])=>`<div><span class="lbl" style="margin-top:0">${l}</span><input inputmode="numeric" data-in="wi" data-w="${w.id}" data-n="${n}" data-k="${k}" value="${i[k]}" style="padding:8px 6px;text-align:center"></div>`).join('')}</div>
+   <label class="row sm mut" style="margin-top:8px"><input type="checkbox" data-in="wside" data-w="${w.id}" data-n="${n}" ${i.side?'checked':''}> Reps are per side</label></div>`).join('')}
+  <button class="btn ghost" data-a="wAdd" data-w="${w.id}">⊕ Add exercises</button>
+  <button class="btn" style="margin-top:10px" data-a="back">Done</button>`}
+
+/* ---- Programs ---- */
+function vPrograms(){const act=S.plans[S.activePlan];const others=Object.values(S.plans).filter(p=>p.id!==S.activePlan).sort((a,b)=>a.created<b.created?1:-1);
+  const row=p=>`<div class="ex"><div class="sp"><div class="b">${esc(p.name)}</div><div class="xs mut">${p.custom?'<span class="tag">Custom</span> ':''}Created ${fd(p.created,1)} · ${p.days.filter(Boolean).length} workout days</div></div><button class="ib" data-a="progMenu" data-id="${p.id}">⋮</button></div>`;
+  return `<div class="top">${backBtn}<div class="ttl">Programs</div><div style="width:38px"></div></div>
+  ${act?`<div class="card" style="background:#1a2747"><span class="pill">Active Program</span><div class="row" style="margin-top:8px"><div class="sp"><div class="b" style="font-size:18px">${esc(act.name)}</div><div class="xs mut">Created ${fd(act.created,1)}</div></div><button class="ib" data-a="progMenu" data-id="${act.id}">⋮</button></div></div>`:''}
+  <h3 style="margin:16px 0 4px">My Programs</h3>${others.map(row).join('')||'<div class="mut sm">No other programs yet.</div>'}
+  <button class="btn ghost" data-a="newProgram" style="margin-top:14px">＋ Build program from scratch</button>`}
+function vPlan(v){const p=S.plans[v.id];if(!p)return header('Plan',backBtn)+'Not found';const isAct=p.id===S.activePlan;
+  return `<div class="top">${backBtn}<div class="sp"><div class="xs mut">${isAct?'ACTIVE PLAN':'VIEWING PLAN'}</div><input data-in="pname" data-id="${p.id}" value="${esc(p.name)}" style="padding:6px 10px;font-weight:600"></div></div>
+  <h3 style="margin:12px 0 4px">Weekly Schedule</h3>
+  ${[...Array(7)].map((_,i)=>{const w=p.days[i]?S.workouts[p.days[i]]:null;
+    return `<div class="row"><div class="xs mut" style="width:34px">${DOW[i]}</div><div class="card sp" style="margin:6px 0"><div class="row">${w?`<button class="sp" style="text-align:left" data-a="weditor" data-w="${w.id}"><div class="b">${esc(w.name)}</div><div class="xs mut">${w.items.length} exercises · ${w.items.reduce((a,x)=>a+x.sets,0)} sets</div></button>`:`<div class="sp"><div class="mut">Rest</div><button style="color:var(--ac2)" data-a="addW" data-pid="${p.id}" data-i="${i}">⊕ Add Workout</button></div>`}<button class="ib" data-a="planDay" data-pid="${p.id}" data-i="${i}">⋮</button></div></div></div>`}).join('')}
+  ${isAct?'':`<button class="btn" data-a="usePlan" data-id="${p.id}">Make this my active program</button>`}`}
+
+/* ---- Progress ---- */
+function vProg(){
+  const g=S.goal;const lw=lastWeight(today());const t=today();
+  const w14=lastWeight(addDays(t,-14));const ch=lw&&w14?r1(lw.w-w14.w):null;
+  const wd=Object.keys(S.weights).sort();const cut=ui.range?addDays(t,-ui.range):'0000';const pts=wd.filter(d=>d>=cut).map(d=>({y:S.weights[d],l:fd(d)}));
+  let logged7=0,kc=0;for(let i=0;i<7;i++){const f=dayFood(addDays(t,-i));if(f.n){logged7++;kc+=f.kcal}}
+  let sched=0,did=0;const p=plan();for(let i=0;i<28;i++){const d=addDays(t,-i);if(p&&p.days[dateOf(d)]){sched++;if(logOn(d))did++}}
+  const exs=[...new Set(S.logs.flatMap(l=>l.exercises.map(e=>e.ex)))];
+  const sel=ui.exSel&&exs.includes(ui.exSel)?ui.exSel:exs[0];
+  const sess=sel?S.logs.filter(l=>l.exercises.some(e=>e.ex===sel)):[];
+  const wkvol=[...Array(8)].map((_,i)=>{const s=addDays(t,-dateOf(t)-7*(7-i)),e=addDays(s,6);return{y:S.logs.filter(l=>l.date>=s&&l.date<=e).reduce((a,l)=>a+logVol(l),0),l:fd(s)}});
+  return `<div class="top"><h1 class="sp" style="font-size:26px">Progress</h1><button class="ib" data-a="settings">⚙</button></div>
+  <div class="card" style="background:#1a2747"><div class="row"><div class="sp"><div class="xs mut">CURRENT GOAL</div><div class="b" style="font-size:22px">${esc(g.type)}</div><div class="sm">${esc(g.pace)}</div></div><button class="sm" style="color:var(--ac2)" data-a="goalEdit">Change ›</button></div>
+   <div class="xs mut" style="margin-top:8px">Started ${fd(g.started,1)} · ${g.startWeight} kg at start</div></div>
+  <div class="card"><div class="row"><div class="sp"><div class="xs mut">WEIGHT</div><div class="big" style="font-size:26px">${lw?lw.w.toFixed(1):'–'} <span class="sm mut">kg</span></div><div class="xs mut">${lw?'Last logged '+(lw.d===t?'today':fd(lw.d)):''}</div></div>
+   ${ch!==null?`<span class="pill ${ch<=0?'g':''}">${ch>0?'+':''}${ch} kg · last 14 days</span>`:''}</div>
+   <div class="seg" style="margin:10px 0 0">${[[30,'30d'],[90,'90d'],[0,'All']].map(([r,l])=>`<button class="${ui.range===r?'on':''}" data-a="range" data-r="${r}">${l}</button>`).join('')}</div>${line(pts,{})}
+   ${g.startWeight&&lw?`<div class="sm mut">Change since start: <b style="color:var(--tx)">${r1(lw.w-g.startWeight)>0?'+':''}${r1(lw.w-g.startWeight)} kg</b></div>`:''}
+   <button class="btn dim" style="margin-top:10px" data-a="weigh">Log weight</button>
+   <details style="margin-top:8px"><summary class="sm mut">Weigh-in history</summary>${[...wd].reverse().slice(0,30).map(d=>`<div class="kv"><span class="mut">${fd(d,1)}</span><span>${S.weights[d].toFixed(1)} kg</span></div>`).join('')}</details></div>
+  <div class="card"><div class="xs mut">NUTRITION</div><div class="b" style="font-size:20px">${logged7} of 7 days <span class="sm mut">logged</span></div><div class="sm mut">${logged7?'Avg '+Math.round(kc/logged7)+' kcal on logged days · target '+S.tgt.calMin+'-'+S.tgt.calMax:'Nothing logged in the last 7 days'}</div></div>
+  <div class="card"><div class="xs mut">WORKOUTS</div><div class="b" style="font-size:20px">${sched?Math.round(did/sched*100):0}% <span class="sm mut">consistent · last 4 weeks (${did}/${sched})</span></div></div>
+  <div class="card"><div class="xs mut">WEEKLY VOLUME (kg)</div>${line(wkvol,{fmt:v=>Math.round(v)})}</div>
+  <div class="card"><div class="xs mut" style="margin-bottom:6px">EXERCISE PROGRESS</div>${exs.length?`<select data-in="exSel">${exs.map(x=>`<option value="${x}" ${x===sel?'selected':''}>${esc(exName(x))}</option>`).join('')}</select>
+   ${line(sess.map(l=>({y:Math.max(...l.exercises.filter(e=>e.ex===sel).flatMap(e=>e.sets.map(s=>num(s.kg)))),l:fd(l.date)})).slice(-14),{})}<div class="xs mut" style="text-align:center">Top set weight (kg)</div>
+   <button class="btn dim" style="margin-top:8px" data-a="exercise" data-e="${sel}" data-tab="hist">Open history</button>`:'<div class="mut sm">Log a workout to see exercise progress.</div>'}</div>`;
+}
+
+/* ---- Settings ---- */
+function vSettings(){const T=S.tgt;
+  return `<div class="top">${backBtn}<div class="ttl">Settings & Backup</div><div style="width:38px"></div></div>
+  <div class="card"><label class="lbl" style="margin-top:0">Your name</label><input data-in="sname" value="${esc(S.name)}">
+   <div class="g2"><div><label class="lbl">Calories min</label><input inputmode="numeric" data-in="tgt" data-k="calMin" value="${T.calMin}"></div><div><label class="lbl">Calories max</label><input inputmode="numeric" data-in="tgt" data-k="calMax" value="${T.calMax}"></div></div>
+   ${[['p','Protein (g) min / max'],['c','Carbs (g) min / max'],['f','Fat (g) min / max']].map(([k,l])=>`<label class="lbl">${l}</label><div class="g2"><input inputmode="numeric" data-in="tgt2" data-k="${k}" data-j="0" value="${T[k][0]}"><input inputmode="numeric" data-in="tgt2" data-k="${k}" data-j="1" value="${T[k][1]}"></div>`).join('')}</div>
+  <div class="card"><div class="b">My foods</div><div class="sm mut" style="margin-bottom:8px">${Object.keys(S.foods).length} foods · ${Object.keys(S.meals).length} meals</div><button class="btn dim" data-a="foodsMgr">Manage foods</button></div>
+  <div class="card"><div class="b">Backup</div><div class="sm mut" style="margin:4px 0 10px">All data lives only in this browser on this device. Export a backup file regularly (and before clearing browser data or changing phones).${S.lastBackup?'<br>Last backup: '+new Date(S.lastBackup).toLocaleString():'<br><b style="color:var(--warn)">No backup made yet.</b>'}</div>
+   <button class="btn" data-a="export">📤 Share backup (WhatsApp / Email / Drive…)</button>
+   <button class="btn dim" style="margin-top:8px" data-a="saveToDevice">💾 Save backup file to device</button>
+   <div class="row" style="margin-top:8px;gap:8px"><button class="btn dim sm2 sp" data-a="waOpen">WhatsApp</button><button class="btn dim sm2 sp" data-a="mailOpen">Email</button></div>
+   <div class="xs mut" style="margin-top:6px">If your browser cannot attach files directly, the backup downloads first — then attach it from WhatsApp/Email (buttons above open them). Storage: ${PERSISTED===true?'protected (persistent)':'standard browser storage'}.</div>
+   <label class="btn dim" style="display:block;margin-top:8px;cursor:pointer">⬆ Import backup<input type="file" accept=".json,application/json" data-in="import" hidden></label>
+   <button class="btn red" data-a="reset" style="margin-top:6px">Reset everything</button></div>`}
+
+/* ---- Foods manager (full screen) ---- */
+function vFoods(){const fs=Object.values(S.foods).sort((a,b)=>a.name.localeCompare(b.name));const ms=Object.values(S.meals);
+  return `<div class="top">${backBtn}<div class="ttl">My Foods</div><button class="ib" style="color:var(--ac2)" data-a="foodForm" data-id="">＋</button></div>
+  <div class="sm mut" style="margin-bottom:6px">Your limited list. Add anything new you come across.</div>
+  ${fs.map(f=>`<button class="ex" data-a="foodForm" data-id="${f.id}"><div class="sp"><div class="b">${esc(f.name)}</div><div class="xs mut">${esc(f.unit)}${f.brand?' · '+esc(f.brand):''}</div></div><div class="sm" style="text-align:right">${Math.round(f.kcal)} kcal<div class="xs mut">${r1(f.p)}P · ${r1(f.c)}C · ${r1(f.f)}F</div></div></button>`).join('')||'<div class="mut">No foods yet.</div>'}
+  <h3 style="margin:18px 0 6px">Meals</h3>
+  ${ms.map(m=>{const t=mealTot(m);return `<div class="ex"><div class="sp"><div class="b">${esc(m.name)}</div><div class="xs mut">${m.items.length?m.items.length+' items':'fixed totals'}</div></div><div class="sm">${Math.round(t.kcal)} kcal · ${r1(t.p)}P</div><button class="ib" style="color:var(--bad)" data-a="delMeal" data-id="${m.id}">🗑</button></div>`}).join('')||'<div class="mut sm">No saved meals. Log foods, then use “Save as meal”.</div>'}`}
+
+/* ============ sheets ============ */
+function renderSheet(){const L=$('#layer');const s=ui.sheet;if(!s){L.innerHTML='';return}
+  L.innerHTML=`<div class="scrim" data-a="scrim"><div class="sheet" data-stop="1"><div class="grab"></div>${sheetBody(s)}</div></div>`;
+  if(s.t==='addfood')renderFoodList();if(s.t==='pick')updPick()}
+function sheetBody(s){
+ switch(s.t){
+ case'weigh':{const cur=S.weights[s.d]!=null?S.weights[s.d]:(lastWeight(s.d)||{w:65}).w;s.v=s.v==null?cur:s.v;
+  return `<div class="row"><b class="sp" style="font-size:18px">Daily Weigh-in</b><button class="ib" data-a="closeSheet">✕</button></div><div class="sm mut">${fd(s.d,1)}${lastWeight(s.d)?' · Last: '+lastWeight(s.d).w.toFixed(1)+' kg':''}</div>
+  <div class="lbl">Enter weight</div><div class="stepper"><button data-a="wstep" data-n="-0.1">−</button><div><span class="v" id="wv">${Number(s.v).toFixed(1)}</span> <span class="mut">kg</span></div><button data-a="wstep" data-n="0.1">+</button></div>
+  <button class="btn" style="margin-top:14px" data-a="saveWeight">Save Weight</button>${S.weights[s.d]!=null?'<button class="btn red" data-a="delWeight">🗑 Delete weigh-in</button>':''}`}
+ case'effort':return `<div class="row"><b class="sp" style="font-size:18px">Rate Effort Level</b><button class="ib" data-a="closeSheet">✕</button></div><div class="sm mut">Required to complete the set</div>
+  <button class="eff easy" data-a="effort" data-v="easy"><b>EASY</b><div class="sm mut">Could have done 3+ more reps</div></button>
+  <button class="eff ideal" data-a="effort" data-v="ideal"><b>IDEAL</b><div class="sm mut">Could have done 1–3 more reps</div></button>
+  <button class="eff max" data-a="effort" data-v="max"><b>MAX EFFORT</b><div class="sm mut">No more reps with good form</div></button>`;
+ case'exMenu':return ['Swap Exercise|swapEx','Form Guide|openEx','Move Up|exUp','Move Down|exDn','Exercise History|histEx','Remove Exercise|rmEx'].map(x=>{const[l,a]=x.split('|');return `<button class="opt ${a==='rmEx'?'red':''}" data-a="${a}">${l}</button>`}).join('');
+ case'planDay':{const p=S.plans[s.pid];const w=p.days[s.i]?S.workouts[p.days[s.i]]:null;
+  return `<div class="b" style="font-size:18px;margin-bottom:6px">${DOWL[s.i]}${w?' · '+esc(w.name):''}</div>
+  ${w&&s.d?`<button class="opt" data-a="prev" data-w="${w.id}" data-d="${s.d}">Open ${esc(w.name)}</button>`:''}
+  ${w?`<button class="opt" data-a="weditor" data-w="${w.id}">✎ Edit exercises, sets & reps</button>`:''}
+  <button class="opt" data-a="addW" data-pid="${s.pid}" data-i="${s.i}">⇄ ${w?'Change':'Add'} workout…</button>
+  ${w?'<button class="opt red" data-a="pickW" data-w="">Make this a rest day</button>':''}`}
+ case'addW':{const groups=Object.values(S.plans).map(p=>({name:p.name,ids:[...new Set(p.days.filter(Boolean))]})).filter(g=>g.ids.length);const used=new Set(groups.flatMap(g=>g.ids));const saved=Object.keys(S.workouts).filter(id=>!used.has(id));if(saved.length)groups.push({name:'My Saved Workouts',ids:saved});
+  return `<div class="row"><b class="sp" style="font-size:18px">Add Workout</b><button class="btn sm2 ghost" data-a="newWFor">＋ New</button><button class="ib" data-a="closeSheet">✕</button></div><div class="sm mut">Pick a workout from your programs, or create a new one.</div>
+  ${groups.map(g=>`<div class="b" style="margin:14px 0 2px">${esc(g.name)}</div>${g.ids.map(id=>{const w=S.workouts[id];return `<button class="opt" data-a="pickW" data-w="${id}">${esc(w.name)} <span class="xs mut">· ${w.items.length} exercises</span></button>`}).join('')}`).join('')}`}
+ case'progMenu':{const p=S.plans[s.id];return `<div class="b" style="font-size:18px;margin-bottom:2px">${esc(p.name)}</div><div class="xs mut">Created ${fd(p.created,1)}</div>
+  ${p.id!==S.activePlan?'<button class="opt" data-a="usePlan" data-id="'+p.id+'">Switch to this plan<div class="xs mut">Make this your active program</div></button>':''}
+  <button class="opt" data-a="openPlan" data-id="${p.id}">View &amp; edit plan<div class="xs mut">Change days, workouts, sets and reps</div></button>
+  ${Object.keys(S.plans).length>1?'<button class="opt red" data-a="delPlan" data-id="'+p.id+'">Remove</button>':''}`}
+ case'plans':return `<div class="row"><b class="sp" style="font-size:18px">Workout Plans</b><button class="ib" data-a="closeSheet">✕</button></div>
+  ${Object.values(S.plans).map(p=>`<div class="row"><button class="opt sp" data-a="usePlan" data-id="${p.id}">${esc(p.name)}${p.id===S.activePlan?' ✓':''}</button><button class="ib" data-a="renamePlan" data-id="${p.id}">✎</button>${Object.keys(S.plans).length>1?`<button class="ib" style="color:var(--bad)" data-a="delPlan" data-id="${p.id}">🗑</button>`:''}</div>`).join('')}
+  <label class="lbl">Create a custom plan</label><div class="row"><input id="np" placeholder="e.g. Upper / Lower"><button class="btn sm2" data-a="newPlan">Create</button></div>
+  <div class="xs mut" style="margin-top:8px">A new plan starts with all rest days. Set each day on the Workout tab.</div>`;
+ case'pick':{const multi=s.mode==='add'||s.mode==='wadd';
+  return `<div class="row"><b class="sp" style="font-size:18px">Select Exercise</b><button class="ib" data-a="closeSheet">✕</button></div>
+  <input id="pq" placeholder="Search exercises (e.g. Squats)" value="${esc(s.q||'')}" style="margin:10px 0"><div id="plist">${pickBody(s)}</div>
+  ${multi?'<div style="position:sticky;bottom:-10px;padding-top:8px;background:#141b25"><button class="btn" data-a="pickDone" id="pickb">Select exercises</button></div>':''}`}
+ case'newEx':return `<div class="row"><b class="sp" style="font-size:18px">Create exercise</b><button class="ib" data-a="closeSheet">✕</button></div>
+  <label class="lbl">Name</label><input id="nx" value="${esc(s.name||'')}"><label class="lbl">Primary muscle</label><select id="nm">${MUSCLES.map(m=>`<option>${m}</option>`).join('')}</select><button class="btn" style="margin-top:14px" data-a="saveNewEx">Save & use</button>`;
+ case'addfood':return `<div class="row"><b class="sp" style="font-size:18px">Add to ${s.m}</b><button class="ib" data-a="closeSheet">✕</button></div>
+  <input id="fq" placeholder="Search your foods" style="margin:10px 0" value="${esc(s.q||'')}">
+  <div class="seg" style="margin-top:0"><button class="${ui.mtab==='food'?'on':''}" data-a="mtab" data-t="food">Food</button><button class="${ui.mtab==='meal'?'on':''}" data-a="mtab" data-t="meal">Meals</button><button data-a="quick">⚡ Quick Log</button></div>
+  <div id="flist"></div><div style="position:sticky;bottom:-10px;padding-top:8px;background:#141b25"><button class="btn" data-a="addSel" id="addb">Add</button></div>`;
+ case'foodForm':{const f=s.id?S.foods[s.id]:{name:'',brand:'',unit:'1 serving',kcal:'',p:'',c:'',f:''};
+  return `<div class="row"><b class="sp" style="font-size:18px">${s.id?'Edit':'New'} food</b><button class="ib" data-a="closeSheet">✕</button></div>
+  <label class="lbl">Name</label><input id="ff_name" value="${esc(f.name)}"><label class="lbl">Brand / note (optional)</label><input id="ff_brand" value="${esc(f.brand||'')}">
+  <label class="lbl">Serving (e.g. 1 large egg, 100 g, 1 bowl) — kg/g/ml only, no oz</label><input id="ff_unit" value="${esc(f.unit)}">
+  <div class="g2"><div><label class="lbl">Calories (kcal) per serving</label><input inputmode="decimal" id="ff_kcal" value="${f.kcal}"></div><div><label class="lbl">Protein (g)</label><input inputmode="decimal" id="ff_p" value="${f.p}"></div><div><label class="lbl">Carbs (g)</label><input inputmode="decimal" id="ff_c" value="${f.c}"></div><div><label class="lbl">Fat (g)</label><input inputmode="decimal" id="ff_f" value="${f.f}"></div></div>
+  <button class="btn" style="margin-top:14px" data-a="saveFood">Save</button>${s.id?'<button class="btn red" data-a="delFood">Delete food</button>':''}`}
+ case'quick':return `<div class="row"><b class="sp" style="font-size:18px">Quick Log · ${s.m}</b><button class="ib" data-a="closeSheet">✕</button></div>
+  <label class="lbl">Name (optional)</label><input id="q_name"><div class="g2"><div><label class="lbl">Calories (kcal)</label><input inputmode="decimal" id="q_kcal"></div><div><label class="lbl">Protein (g)</label><input inputmode="decimal" id="q_p"></div><div><label class="lbl">Carbs (g)</label><input inputmode="decimal" id="q_c"></div><div><label class="lbl">Fat (g)</label><input inputmode="decimal" id="q_f"></div></div>
+  <button class="btn" style="margin-top:14px" data-a="saveQuick">Add</button>`;
+ case'entry':{const e=(S.foodLog[s.d]||{})[s.m][s.i];const it=fitem(e);
+  return `<div class="row"><b class="sp" style="font-size:18px">${esc(it.name)}</b><button class="ib" data-a="closeSheet">✕</button></div><div class="sm mut">${esc(it.sub)}</div>
+  ${e.quick?'':`<label class="lbl">Servings</label><div class="stepper" style="padding:10px"><button data-a="qstep" data-n="-0.25">−</button><input id="eq" inputmode="decimal" value="${e.qty||1}" style="text-align:center;font-size:26px;font-weight:700;width:120px;background:transparent;border:0"><button data-a="qstep" data-n="0.25">+</button></div>`}
+  <div class="kv" style="margin-top:10px"><span class="mut">Calories</span><b>${Math.round(it.kcal)} kcal</b></div><div class="kv"><span class="mut">Protein / Carbs / Fat</span><span>${r1(it.p)} / ${r1(it.c)} / ${r1(it.f)} g</span></div>
+  ${e.quick?'':'<button class="btn" style="margin-top:12px" data-a="saveEntry">Save</button>'}<button class="btn red" data-a="delEntry">Remove</button>`}
+ case'editSession':{const l=S.logs.find(x=>x.id===s.id);const e=l.exercises[s.i];
+  return `<div class="row"><b class="sp" style="font-size:18px">${esc(exName(e.ex))}</b><button class="ib" data-a="closeSheet">✕</button></div><div class="sm mut">${fd(l.date,1)} · ${esc(l.name)}</div>
+  ${e.sets.map((x,i)=>`<div class="row" style="margin:8px 0"><span class="mut" style="width:46px">Set ${i+1}</span><input inputmode="decimal" id="es_k${i}" value="${x.kg}"><span class="mut">kg ×</span><input inputmode="numeric" id="es_r${i}" value="${x.reps}"><button class="ib" style="color:var(--bad)" data-a="esDel" data-j="${i}">✕</button></div>`).join('')}
+  <button class="btn dim" data-a="esAdd" style="margin-top:6px">＋ Add set</button><button class="btn" style="margin-top:8px" data-a="esSave">Save</button><button class="btn red" data-a="esDelEx">Remove exercise from this session</button>`}
+ case'goal':{const g=S.goal;return `<div class="row"><b class="sp" style="font-size:18px">Goal</b><button class="ib" data-a="closeSheet">✕</button></div>
+  <label class="lbl">Goal</label><select id="g_t">${['Lose Fat','Build Muscle','Maintain'].map(x=>`<option ${g.type===x?'selected':''}>${x}</option>`).join('')}</select>
+  <label class="lbl">Pace / note</label><input id="g_p" value="${esc(g.pace)}"><div class="g2"><div><label class="lbl">Start date</label><input type="date" id="g_d" value="${g.started}"></div><div><label class="lbl">Start weight (kg)</label><input inputmode="decimal" id="g_w" value="${g.startWeight}"></div></div>
+  <button class="btn" style="margin-top:14px" data-a="saveGoal">Save</button>`}
+ }return ''}
+
+/* exercise picker body */
+function pickBody(s){const q=(s.q||'').toLowerCase().trim();const all=allEx().sort((a,b)=>a.name.localeCompare(b.name));const multi=s.mode==='add'||s.mode==='wadd';s.sel=s.sel||{};
+  const row=e=>`<button class="ex" data-a="pickEx" data-e="${e.id}"><div class="th">${initials(e.name)}</div><div class="sp">${esc(e.name)}<div class="xs mut">${e.muscle}</div></div>${multi?`<span style="width:22px;height:22px;border-radius:50%;flex:none;border:2px solid ${s.sel[e.id]?'var(--ac)':'#3a475b'};background:${s.sel[e.id]?'var(--ac)':'transparent'}"></span>`:''}</button>`;
+  let h='';
+  if(q)h=all.filter(e=>e.name.toLowerCase().includes(q)).map(row).join('')||'<div class="mut sm">No match.</div>';
+  else{h=`<div class="seg" style="margin-top:0"><button class="${s.m?'':'on'}" data-a="pickTab" data-m="">All (${all.length})</button><button class="${s.m?'on':''}" data-a="pickTab" data-m="${s.m||MUSCLES[0]}">By muscle</button></div>`;
+    if(s.m)h+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${MUSCLES.map(m=>`<button class="tag" style="${m===s.m?'background:var(--ac);color:#fff':''}" data-a="pickTab" data-m="${m}">${m} ${all.filter(e=>(e.muscles||[e.muscle]).includes(m)).length}</button>`).join('')}</div>`+all.filter(e=>(e.muscles||[e.muscle]).includes(s.m)).map(row).join('');
+    else h+=all.map(row).join('')}
+  return h+`<div style="text-align:center;margin:14px 0 4px" class="sm mut">Can't find what you're looking for?<button class="btn ghost" style="margin-top:8px" data-a="newEx">Create new exercise</button></div>`}
+function updPick(){const s=ui.sheet,n=Object.keys((s&&s.sel)||{}).length,b=$('#pickb');if(b){b.textContent=n?'Add '+n+' exercise'+(n>1?'s':''):'Select exercises';b.style.opacity=n?1:.5}}
+
+/* food list (partial render) */
+function renderFoodList(){const s=ui.sheet;if(!s||s.t!=='addfood')return;const q=(s.q||'').toLowerCase().trim();s.sel=s.sel||{};let h='';
+  if(ui.mtab==='food'){const fs=Object.values(S.foods).filter(f=>!q||(f.name+' '+(f.brand||'')).toLowerCase().includes(q)).sort((a,b)=>(b.uses||0)-(a.uses||0)||a.name.localeCompare(b.name));
+    h=`<div class="row" style="margin:4px 0"><b class="sp">${q?'Results':'Often logged'}</b><button class="btn sm2 dim" data-a="foodForm" data-id="" data-from="add">＋ New food</button></div>`+
+    (fs.map(f=>`<button class="ex" data-a="selFood" data-k="f:${f.id}"><div class="sp"><div>${esc(f.name)}</div><div class="xs mut">${esc(f.unit)}${f.brand?' · '+esc(f.brand):''}</div></div><div class="sm" style="text-align:right">${Math.round(f.kcal)} kcal<div class="xs mut">${r1(f.p)} P</div></div><span class="ck2" style="width:22px;height:22px;border-radius:50%;border:2px solid ${s.sel['f:'+f.id]?'var(--ac)':'#3a475b'};background:${s.sel['f:'+f.id]?'var(--ac)':'transparent'}"></span></button>`).join('')||'<div class="mut sm" style="padding:10px 0">Nothing here — tap “New food”.</div>')}
+  else{const ms=Object.values(S.meals).filter(m=>!q||m.name.toLowerCase().includes(q));
+    h='<b>Your Meals</b>'+(ms.map(m=>{const t=mealTot(m);return `<button class="ex" data-a="selFood" data-k="m:${m.id}"><div class="sp"><div>${esc(m.name)}</div><div class="xs mut">${m.items.length?m.items.length+' items':'saved meal'}</div></div><div class="sm" style="text-align:right">${Math.round(t.kcal)} kcal<div class="xs mut">${r1(t.p)} P</div></div><span style="width:22px;height:22px;border-radius:50%;border:2px solid ${s.sel['m:'+m.id]?'var(--ac)':'#3a475b'};background:${s.sel['m:'+m.id]?'var(--ac)':'transparent'}"></span></button>`}).join('')||'<div class="mut sm" style="padding:10px 0">No saved meals yet. Log a meal, then tap “Save as meal”.</div>')}
+  const el=$('#flist');if(el)el.innerHTML=h;const n=Object.keys(s.sel).length;const b=$('#addb');if(b){b.textContent=n?'Add '+n+' item'+(n>1?'s':''):'Select items to add';b.style.opacity=n?1:.5}}
+
+/* rest timer */
+function renderRest(){const el=$('#restbar');if(el)el.remove();if(!restT||!topv()||topv().t!=='active')return;
+  const d=document.createElement('div');d.id='restbar';d.className='restbar';d.innerHTML=`<div><span style="font-size:20px">⏱</span><b class="sp" style="font-size:22px" id="rt">${fmtT(Math.ceil((restT.end-Date.now())/1000))}</b><button class="btn sm2 dim" data-a="restAdd">+30s</button><button class="btn sm2 dim" data-a="restStop">Skip</button></div>`;document.body.appendChild(d)}
+function drawRest(){}
+function startRest(sec){stopRest();if(!sec)return;restT={end:Date.now()+sec*1000,iv:setInterval(()=>{const left=Math.ceil((restT.end-Date.now())/1000);const el=$('#rt');if(el)el.textContent=fmtT(left);if(left<=0){stopRest();try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}toast('Rest over — next set!')}},500)};renderRest()}
+function stopRest(){if(restT){clearInterval(restT.iv);restT=null}const el=$('#restbar');if(el)el.remove()}
+
+/* ============ actions ============ */
+const A={};
+A.tab=(d)=>{ui.stack=[];ui.tab=d.t;render(false)};
+A.back=()=>{stopRestIfLeaving();back()};
+function stopRestIfLeaving(){const v=topv();if(v&&v.t==='active'){/* keep timer running if user returns */}}
+A.settings=()=>go({t:'settings'});
+A.wkNav=d=>{ui.wk=d.n==='0'?0:ui.wk+Number(d.n);render()};
+A.pickday=d=>{ui.date=d.d;if(d.reset)ui.wk=0;else{const ws=addDays(today(),-dateOf(today())+ui.wk*7);if(d.d<ws||d.d>addDays(ws,6))ui.wk=Math.floor(diffDays(d.d,addDays(today(),-dateOf(today())))/7)}render()};
+A.nutDay=d=>{ui.nd=d.d;ui.tab='nut';ui.stack=[];render(false)};
+A.ndate=d=>{const cur=ui.nd||ui.ndate;ui.nd=d.n==='0'?today():addDays(cur,Number(d.n));ui.ndate=ui.nd;render()};
+A.remain=d=>{ui.remain=d.v==='1';render()};
+A.weigh=()=>sheet({t:'weigh',d:ui.tab==='dash'||!topv()&&ui.tab!=='prog'?ui.date:today()});
+A.wstep=d=>{const s=ui.sheet;s.v=Math.round((Number(s.v)+Number(d.n))*10)/10;$('#wv').textContent=s.v.toFixed(1)};
+A.saveWeight=()=>{S.weights[ui.sheet.d]=ui.sheet.v;save();closeSheet();render();toast('Weight saved')};
+A.delWeight=()=>{delete S.weights[ui.sheet.d];save();closeSheet();render()};
+A.closeSheet=()=>closeSheet();
+A.scrim=(d,el,ev)=>{if(ev.target.classList.contains('scrim'))closeSheet()};
+A.prev=d=>{go({t:'preview',w:d.w,d:d.d})};
+A.openlog=d=>go({t:'summary',id:d.id});
+A.exercise=d=>go({t:'exercise',e:d.e,tab:d.tab||'guide'});
+A.extab=d=>{topv().tab=d.t;render()};
+A.start=d=>{
+  if(S.active&&!(S.active.workoutId===d.w&&S.active.date===d.d)){if(!confirm('A different workout is in progress. Discard it and start this one?'))return}
+  if(!S.active||!(S.active.workoutId===d.w&&S.active.date===d.d)){const w=S.workouts[d.w];
+    S.active={workoutId:w.id,date:d.d,name:w.name,start:Date.now(),exercises:w.items.map(i=>({ex:i.ex,lo:i.lo,hi:i.hi,rest:i.rest,side:!!i.side,notes:'',sets:[...Array(i.sets)].map(()=>({kg:'',reps:'',effort:null}))}))};save()}
+  ui.stack=ui.stack.filter(v=>v.t!=='preview');go({t:'active'})};
+A.setck=d=>{const A_=S.active,e=A_.exercises[d.ei],s=e.sets[d.si];
+  if(s.effort){s.effort=null;save();render();return}
+  const p=prevSets(e.ex,A_.date);const pp=p&&(p.sets[d.si]||p.sets[p.sets.length-1]);
+  if(s.kg===''&&pp)s.kg=pp.kg;if(s.reps===''&&pp)s.reps=pp.reps;
+  if(s.kg===''||s.reps===''){toast('Enter kg and reps first');return}
+  ui.cur={ei:+d.ei,si:+d.si};sheet({t:'effort'})};
+A.effort=d=>{const{ei,si}=ui.cur;const ex=S.active.exercises;const e=ex[ei];e.sets[si].effort=d.v;save();closeSheet();render();startRest(e.rest);
+  if(e.sets.every(x=>x.effort)){ // exercise finished -> glide to the next unfinished one
+    let nx=ex.findIndex((x,i)=>i>ei&&x.sets.some(y=>!y.effort));if(nx<0)nx=ex.findIndex(x=>x.sets.some(y=>!y.effort));
+    setTimeout(()=>{if(nx>=0){const el=document.getElementById('ac'+nx);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}else{toast('All exercises done — tap Finish');window.scrollTo({top:0,behavior:'smooth'})}},120)}};
+A.delSet=d=>{const ex=S.active.exercises,e=ex[+d.ei];e.sets.splice(+d.si,1);if(!e.sets.length)ex.splice(+d.ei,1);save();render()};
+A.addSet=d=>{const e=S.active.exercises[d.ei];const l=e.sets[e.sets.length-1];e.sets.push({kg:l?l.kg:'',reps:l?l.reps:'',effort:null});save();render()};
+A.rest=d=>{startRest(+d.s)};
+A.restAdd=()=>{if(restT)restT.end+=30000;renderRest()};
+A.restStop=()=>stopRest();
+A.exMenu=d=>{ui.cur={ei:+d.ei};sheet({t:'exMenu'})};
+A.swapEx=()=>{closeSheet();sheet({t:'pick',mode:'swap',q:'',m:''})};
+A.openEx=()=>{closeSheet();go({t:'exercise',e:S.active.exercises[ui.cur.ei].ex})};
+A.histEx=()=>{closeSheet();go({t:'exercise',e:S.active.exercises[ui.cur.ei].ex,tab:'hist'})};
+A.exUp=()=>{const a=S.active.exercises,i=ui.cur.ei;if(i>0){[a[i-1],a[i]]=[a[i],a[i-1]];save()}closeSheet();render()};
+A.exDn=()=>{const a=S.active.exercises,i=ui.cur.ei;if(i<a.length-1){[a[i+1],a[i]]=[a[i],a[i+1]];save()}closeSheet();render()};
+A.rmEx=()=>{if(confirm('Remove this exercise from today\'s workout?')){S.active.exercises.splice(ui.cur.ei,1);save()}closeSheet();render()};
+A.addEx=()=>sheet({t:'pick',mode:'add',q:'',m:''});
+A.pickTab=d=>{ui.sheet.m=d.m;ui.sheet.q='';renderSheet()};
+A.newEx=()=>{const s=ui.sheet;sheet({t:'newEx',name:s.q||'',mode:s.mode,w:s.w})};
+A.saveNewEx=()=>{const n=$('#nx').value.trim();if(!n)return toast('Enter a name');const id=exId(n)+(LIBX[exId(n)]||S.custom[exId(n)]?'_'+uid():'');S.custom[id]={id,name:n,muscle:$('#nm').value,steps:[],tip:'',custom:1};save();pickEx([id],ui.sheet)};
+A.pickEx=d=>{const s=ui.sheet;if(s.mode==='swap')return pickEx([d.e],s);s.sel=s.sel||{};if(s.sel[d.e])delete s.sel[d.e];else s.sel[d.e]=1;$('#plist').innerHTML=pickBody(s);updPick()};
+A.pickDone=()=>{const s=ui.sheet,ids=Object.keys(s.sel||{});if(!ids.length)return;pickEx(ids,s)};
+function pickEx(ids,s){
+  if(s.mode==='add'){const a=S.active;ids.forEach(id=>{const df=defs(EXD(id).name);const p=prevSets(id,a.date);a.exercises.push({ex:id,lo:df.lo,hi:df.hi,rest:df.rest,side:df.side,notes:'',sets:[...Array(p?Math.max(1,p.sets.length):df.sets)].map(()=>({kg:'',reps:'',effort:null}))})});save()}
+  else if(s.mode==='swap'){const e=S.active.exercises[ui.cur.ei];e.ex=ids[0];e.sets.forEach(x=>{x.kg='';x.reps='';x.effort=null});save()}
+  else if(s.mode==='wadd'){const w=S.workouts[s.w];ids.forEach(id=>{const df=defs(EXD(id).name);w.items.push({ex:id,sets:df.sets,lo:df.lo,hi:df.hi,rest:df.rest,side:df.side,note:''})});save()}
+  closeSheet();render()}
+A.finish=()=>{const a=S.active;const pending=a.exercises.reduce((n,e)=>n+e.sets.filter(s=>!s.effort).length,0);
+  const done=a.exercises.reduce((n,e)=>n+e.sets.filter(s=>s.effort).length,0);
+  if(!done){toast('Complete at least one set first');return}
+  if(pending&&!confirm(pending+' set(s) not completed — they will be dropped. Finish workout?'))return;
+  const exs=a.exercises.map(e=>({ex:e.ex,notes:e.notes,sets:e.sets.filter(s=>s.effort).map(s=>({kg:num(s.kg),reps:num(s.reps),effort:s.effort}))})).filter(e=>e.sets.length);
+  const dur=Math.max(1,Math.round((Date.now()-a.start)/60000));
+  const log={id:uid(),date:a.date,workoutId:a.workoutId,name:a.name,start:a.start,dur,exercises:exs};
+  S.logs.push(log);S.logs.sort((x,y)=>x.date===y.date?x.start-y.start:x.date<y.date?-1:1);S.active=null;save();stopRest();
+  ui.stack=[{t:'summary',id:log.id}];render(false)};
+A.discard=()=>{if(confirm('Discard this workout? Logged sets will be lost.')){S.active=null;save();stopRest();ui.stack=[];render(false)}};
+A.delLog=d=>{if(confirm('Delete this workout from history?')){S.logs=S.logs.filter(l=>l.id!==d.id);save();ui.stack=[];render(false)}};
+A.editSession=d=>sheet({t:'editSession',id:d.id,i:+d.i});
+function esRead(){const s=ui.sheet,l=S.logs.find(x=>x.id===s.id),e=l.exercises[s.i];e.sets.forEach((x,i)=>{x.kg=num($('#es_k'+i).value);x.reps=num($('#es_r'+i).value)})}
+A.esSave=()=>{esRead();save();closeSheet();render()};
+A.esDel=d=>{esRead();const s=ui.sheet,l=S.logs.find(x=>x.id===s.id);l.exercises[s.i].sets.splice(+d.j,1);save();renderSheet()};
+A.esAdd=()=>{esRead();const s=ui.sheet,e=S.logs.find(x=>x.id===s.id).exercises[s.i];const l=e.sets[e.sets.length-1]||{kg:0,reps:0};e.sets.push({kg:l.kg,reps:l.reps,effort:'ideal'});renderSheet()};
+A.esDelEx=()=>{const s=ui.sheet,l=S.logs.find(x=>x.id===s.id);l.exercises.splice(s.i,1);if(!l.exercises.length)S.logs=S.logs.filter(x=>x!==l);save();closeSheet();if(!l.exercises.length)ui.stack=[];render(false)};
+/* schedule / plans / workouts */
+A.daySheet=d=>{const i=d.i!=null&&d.i!==''?+d.i:dateOf(d.d);sheet({t:'planDay',pid:plan().id,i,d:d.d})};
+A.planDay=d=>sheet({t:'planDay',pid:d.pid,i:+d.i});
+A.addW=d=>sheet({t:'addW',pid:d.pid,i:+d.i});
+A.pickW=d=>{const s=ui.sheet;S.plans[s.pid].days[s.i]=d.w||null;save();closeSheet();render()};
+A.newWFor=()=>{const s=ui.sheet;const n=prompt('Workout name (e.g. Upper Body)');if(!n||!n.trim())return;const id='w_'+uid();S.workouts[id]={id,name:n.trim(),items:[]};S.plans[s.pid].days[s.i]=id;save();closeSheet();go({t:'weditor',w:id})};
+A.plansSheet=()=>go({t:'programs'});
+A.progMenu=d=>sheet({t:'progMenu',id:d.id});
+A.openPlan=d=>{closeSheet();go({t:'plan',id:d.id})};
+A.usePlan=d=>{S.activePlan=d.id;save();closeSheet();render()};
+A.delPlan=d=>{if(!confirm('Remove this program? Its workouts stay in your saved workouts.'))return;delete S.plans[d.id];if(S.activePlan===d.id)S.activePlan=Object.keys(S.plans)[0];save();closeSheet();const v=topv();if(v&&v.t==='plan'&&v.id===d.id)ui.stack.pop();render()};
+A.newProgram=()=>{const n=prompt('Program name',(S.name||'My')+"'s Custom Program");if(!n||!n.trim())return;const id='p_'+uid();S.plans[id]={id,name:n.trim(),created:today(),custom:true,days:[null,null,null,null,null,null,null]};save();go({t:'plan',id})};
+A.newWorkout=()=>{const n=prompt('Workout name (e.g. Upper Body)');if(!n||!n.trim())return;const id='w_'+uid();S.workouts[id]={id,name:n.trim(),items:[]};save();go({t:'weditor',w:id})};
+A.weditor=d=>go({t:'weditor',w:d.w});
+A.delWorkout=d=>{if(!confirm('Delete this workout template? Past history is kept.'))return;delete S.workouts[d.w];for(const p of Object.values(S.plans))p.days=p.days.map(x=>x===d.w?null:x);save();ui.stack=[];render(false)};
+A.wUp=d=>{const a=S.workouts[d.w].items,n=+d.n;if(n>0){[a[n-1],a[n]]=[a[n],a[n-1]];save();render()}};
+A.wDn=d=>{const a=S.workouts[d.w].items,n=+d.n;if(n<a.length-1){[a[n+1],a[n]]=[a[n],a[n+1]];save();render()}};
+A.wRm=d=>{S.workouts[d.w].items.splice(+d.n,1);save();render()};
+A.wAdd=d=>sheet({t:'pick',mode:'wadd',w:d.w,q:'',m:''});
+/* nutrition */
+A.addFood=d=>{ui.mtab='food';sheet({t:'addfood',m:d.m,d:ui.nd||ui.ndate,q:'',sel:{}})};
+A.mtab=d=>{ui.mtab=d.t;renderSheet()};
+A.selFood=d=>{const s=ui.sheet;if(s.sel[d.k])delete s.sel[d.k];else s.sel[d.k]=1;renderFoodList()};
+A.addSel=()=>{const s=ui.sheet,keys=Object.keys(s.sel);if(!keys.length)return;const log=(S.foodLog[s.d]=S.foodLog[s.d]||{});const arr=(log[s.m]=log[s.m]||[]);
+  for(const k of keys){const[t,id]=k.split(':');if(t==='f'){arr.push({food:id,qty:1});if(S.foods[id])S.foods[id].uses=(S.foods[id].uses||0)+1}else arr.push({meal:id,qty:1})}
+  save();closeSheet();render()};
+A.quick=()=>sheet({t:'quick',m:ui.sheet.m,d:ui.sheet.d});
+A.saveQuick=()=>{const s=ui.sheet;const e={quick:{name:$('#q_name').value.trim(),kcal:num($('#q_kcal').value),p:num($('#q_p').value),c:num($('#q_c').value),f:num($('#q_f').value)},qty:1};
+  if(!e.quick.kcal&&!e.quick.p)return toast('Enter calories');const log=(S.foodLog[s.d]=S.foodLog[s.d]||{});(log[s.m]=log[s.m]||[]).push(e);save();closeSheet();render()};
+A.editEntry=d=>sheet({t:'entry',m:d.m,i:+d.i,d:ui.nd||ui.ndate});
+A.qstep=d=>{const el=$('#eq');el.value=Math.max(0.25,num(el.value)+Number(d.n))};
+A.saveEntry=()=>{const s=ui.sheet;const e=S.foodLog[s.d][s.m][s.i];e.qty=Math.max(0.05,num($('#eq').value)||1);save();closeSheet();render()};
+A.delEntry=()=>{const s=ui.sheet;S.foodLog[s.d][s.m].splice(s.i,1);save();closeSheet();render()};
+A.copyPrev=()=>{const d=ui.nd||ui.ndate,pd=addDays(d,-1);const src=S.foodLog[pd];if(!src||!dayFood(pd).n)return toast('Nothing logged on '+fd(pd));
+  if(dayFood(d).n&&!confirm('Add yesterday\'s foods to this day too?'))return;S.foodLog[d]=S.foodLog[d]||{};for(const m of MEALS)(S.foodLog[d][m]=S.foodLog[d][m]||[]).push(...JSON.parse(JSON.stringify(src[m]||[])));save();render();toast('Copied from '+fd(pd))};
+A.saveMeal=d=>{const es=(S.foodLog[ui.nd||ui.ndate]||{})[d.m]||[];if(!es.length)return;const n=prompt('Name this meal');if(!n||!n.trim())return;
+  const id='m_'+uid();const items=es.filter(e=>e.food).map(e=>({food:e.food,qty:e.qty||1}));
+  const m={id,name:n.trim(),items};if(items.length!==es.length){const t={kcal:0,p:0,c:0,f:0};es.forEach(e=>{const i=fitem(e);t.kcal+=i.kcal;t.p+=i.p;t.c+=i.c;t.f+=i.f});m.fixed=t;m.items=[]}
+  S.meals[id]=m;save();toast('Saved to Meals')};
+A.foodsMgr=()=>{ui.sheet=null;go({t:'foods'})};
+A.foodForm=d=>{const from=d.from==='add'?ui.sheet:null;ui.ret=from;sheet({t:'foodForm',id:d.id||''})};
+A.saveFood=()=>{const s=ui.sheet;const n=$('#ff_name').value.trim();if(!n)return toast('Enter a name');
+  const o={name:n,brand:$('#ff_brand').value.trim(),unit:$('#ff_unit').value.trim()||'1 serving',kcal:num($('#ff_kcal').value),p:num($('#ff_p').value),c:num($('#ff_c').value),f:num($('#ff_f').value)};
+  if(s.id)Object.assign(S.foods[s.id],o);else{const id='f_'+uid();S.foods[id]={id,uses:0,...o}}save();
+  if(ui.ret){ui.sheet=ui.ret;ui.ret=null;renderSheet()}else{closeSheet();render()}};
+A.delFood=()=>{if(!confirm('Delete this food? Past log entries will show as deleted.'))return;delete S.foods[ui.sheet.id];save();closeSheet();render()};
+A.delMeal=d=>{delete S.meals[d.id];save();render()};
+/* progress */
+A.range=d=>{ui.range=+d.r;render()};
+A.goalEdit=()=>sheet({t:'goal'});
+A.saveGoal=()=>{S.goal={type:$('#g_t').value,pace:$('#g_p').value,started:$('#g_d').value||S.goal.started,startWeight:num($('#g_w').value)};save();closeSheet();render()};
+/* settings */
+async function shareBlob(blob,name,title){const f=new File([blob],name,{type:blob.type||'application/json'});
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title});return 'shared'}}catch(e){if(e&&e.name==='AbortError')return 'cancel'}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();return 'downloaded'}
+A.export=async()=>{const blob=new Blob([JSON.stringify(S)],{type:'application/json'});const r=await shareBlob(blob,'myfitness-backup-'+today()+'.json','My Fitness backup');
+  if(r!=='cancel'){S.lastBackup=Date.now();save();render();if(r==='downloaded')toast('Saved to Downloads — attach it in WhatsApp or Email')}};
+A.saveToDevice=async()=>{if(!window.showSaveFilePicker)return A.export();
+  try{const h=await showSaveFilePicker({suggestedName:'myfitness-backup-'+today()+'.json',types:[{description:'Backup',accept:{'application/json':['.json']}}]});const w=await h.createWritable();await w.write(JSON.stringify(S));await w.close();S.lastBackup=Date.now();save();render();toast('Backup file saved')}catch(e){}};
+A.waOpen=()=>{window.open('https://wa.me/','_blank')};
+A.mailOpen=()=>{location.href='mailto:?subject='+encodeURIComponent('My Fitness backup '+today())+'&body='+encodeURIComponent('Attach the downloaded backup file (myfitness-backup-'+today()+'.json). Restore it via Settings → Import backup.')};
+A.shareLog=async d=>{const l=S.logs.find(x=>x.id===d.id);if(!l)return;
+  const txt=`🏋 ${l.name} — ${DOWL[dateOf(l.date)].slice(0,3)}, ${fd(l.date,1)}\nVolume ${Math.round(logVol(l)).toLocaleString()} kg${l.dur?' · '+l.dur+' min':''}\n\n`+l.exercises.map(e=>'• '+exName(e.ex)+': '+e.sets.map(s=>fkg(s.kg)+'kg×'+s.reps).join(', ')).join('\n');
+  try{if(navigator.share){await navigator.share({text:txt});return}}catch(e){if(e&&e.name==='AbortError')return}
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank')};
+let tsw=null;document.addEventListener('touchstart',e=>{const w=e.target.closest('.swrap');tsw=w?{x:e.touches[0].clientX,w}:null},{passive:true});
+document.addEventListener('touchend',e=>{if(!tsw)return;const dx=e.changedTouches[0].clientX-tsw.x;if(dx<-45){document.querySelectorAll('.swrap.sw').forEach(x=>x.classList.remove('sw'));tsw.w.classList.add('sw')}else if(dx>30)tsw.w.classList.remove('sw');tsw=null},{passive:true});
+A.reset=()=>{if(confirm('Delete ALL data on this device and start fresh?')&&confirm('Really delete everything? Export a backup first if unsure.')){localStorage.removeItem(KEY);S=seed();save();ui.stack=[];render(false)}};
+
+/* ============ events ============ */
+document.addEventListener('click',ev=>{
+  const el=ev.target.closest('[data-a]');if(!el)return;
+  if(el.dataset.a==='scrim'){if(ev.target===el)closeSheet();return}
+  const f=A[el.dataset.a];if(f)f(el.dataset,el,ev)});
+document.addEventListener('input',ev=>{const t=ev.target;
+  if(t.id==='pq'){ui.sheet.q=t.value;$('#plist').innerHTML=pickBody(ui.sheet)}
+  if(t.id==='fq'){ui.sheet.q=t.value;renderFoodList()}});
+document.addEventListener('change',ev=>{const t=ev.target,k=t.dataset.in;if(!k)return;const D=t.dataset;
+  switch(k){
+  case'kg':case'reps':S.active.exercises[D.ei].sets[D.si][k]=t.value===''?'':num(t.value);break;
+  case'note':S.active.exercises[D.ei].notes=t.value;break;
+  case'exnote':S.exnotes[D.e]=t.value;break;
+  case'csteps':S.custom[D.e].steps=t.value.split('\n').map(x=>x.trim()).filter(Boolean);break;
+  case'wside':S.workouts[D.w].items[D.n].side=t.checked;break;
+  case'pname':S.plans[D.id].name=t.value.trim()||S.plans[D.id].name;break;
+  case'wname':S.workouts[D.w].name=t.value.trim()||S.workouts[D.w].name;break;
+  case'wi':S.workouts[D.w].items[D.n][D.k]=Math.max(0,Math.round(num(t.value)));break;
+  case'sname':S.name=t.value.trim()||'Friend';break;
+  case'tgt':S.tgt[D.k]=num(t.value);break;
+  case'tgt2':S.tgt[D.k][+D.j]=num(t.value);break;
+  case'exSel':ui.exSel=t.value;save();render();return;
+  case'import':{const f=t.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||!o.logs||!o.workouts)throw 0;if(!confirm('Replace ALL current data with this backup?'))return;if(o.v===2)S=o;else{S=seed();migrate(o)}save();ui.stack=[];render(false);toast('Backup restored')}catch(e){toast('Not a valid backup file')}};r.readAsText(f);return}
+  }
+  save()});
+window.addEventListener('beforeunload',save);
+
+load();
+// make sure old/partial saves have all keys
+for(const k of['workouts','plans','logs','weights','foods','meals','foodLog','custom','exnotes'])if(!S[k])S[k]=(k==='logs')?[]:{};
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().then(v=>{PERSISTED=v})}catch(e){}
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+if(S.active&&!topv())ui.stack=[{t:'active'}];
+render(false);
+</script>
+</body>
+</html>
