@@ -83,7 +83,7 @@ h1,h2,h3{margin:0}
 .muscle .card{margin:0;min-width:96px;padding:10px;text-align:center}
 svg text{fill:#8b97a8;font-size:10px}
 .tag{font-size:11px;padding:2px 8px;border-radius:8px;background:var(--card2);color:var(--mut)}
-.h3b{text-align:left;display:block}.acard{scroll-margin-top:76px}
+.h3b{text-align:left;display:block}.prevb{color:var(--ac2);text-align:center;padding:6px 2px;border-radius:8px;background:#1a2538}.prevh{font-size:12px;color:var(--ac2);text-align:center}.acard{scroll-margin-top:76px}
 .swrap{position:relative;overflow:hidden;border-radius:10px}.swrap .sr{transition:transform .2s;background:var(--card)}.swrap .sr.ok{background:#1a2c26}.swrap.sw .sr{transform:translateX(-72px)}
 .sdel{position:absolute;right:0;top:0;bottom:0;width:68px;background:var(--bad);border-radius:10px;color:#fff;font-size:18px}.swrap:not(.sw) .sdel{display:none}
 input[type=checkbox]{width:auto}.steprow{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
@@ -281,13 +281,14 @@ function fitem(e){ // food log entry -> numbers
   return{name:f.name,sub:(q!==1?q+' × ':'')+f.unit+(f.brand?' · '+f.brand:''),kcal:f.kcal*q,p:f.p*q,c:f.c*q,f:f.f*q}}
 function mealTot(m){if(m.fixed)return m.fixed;return m.items.reduce((a,i)=>{const f=S.foods[i.food];if(!f)return a;const q=i.qty||1;a.kcal+=f.kcal*q;a.p+=f.p*q;a.c+=f.c*q;a.f+=f.f*q;return a},{kcal:0,p:0,c:0,f:0})}
 const totalCount=()=>(S.baseCount==null?142:S.baseCount)+S.logs.filter(l=>l.counted).length;
-const WEEK_TARGET=6;
-function weekStats(date){const ws=addDays(date,-dateOf(date)),we=addDays(ws,6);const sets={};let n=0;const days=new Set();
+function weekStats(date){const ws=addDays(date,-dateOf(date)),we=addDays(ws,6);const sets={};const days=new Set();
   S.logs.filter(l=>l.date>=ws&&l.date<=we).forEach(l=>{days.add(l.date);l.exercises.forEach(e=>{const m=EXD(e.ex).muscle;sets[m]=(sets[m]||0)+e.sets.length})});
-  const p=plan();const planM=new Set();let sched=0;if(p)p.days.forEach(id=>{if(id&&S.workouts[id]){sched++;S.workouts[id].items.forEach(i=>planM.add(EXD(i.ex).muscle))}});
-  Object.keys(sets).forEach(m=>planM.add(m));
-  const cov=planM.size?Math.round([...planM].reduce((a,m)=>a+Math.min(1,(sets[m]||0)/WEEK_TARGET),0)/planM.size*100):0;
-  return{sets,done:days.size,sched:Math.max(sched,days.size),cov}}
+  const p=plan();const planned={};let sched=0;
+  if(p)p.days.forEach(id=>{if(id&&S.workouts[id]){sched++;S.workouts[id].items.forEach(i=>{const m=EXD(i.ex).muscle;planned[m]=(planned[m]||0)+(+i.sets||0)})}});
+  Object.keys(sets).forEach(m=>{if(!planned[m])planned[m]=sets[m]}); // trained but not in the plan: counts as met
+  const tot=Object.values(planned).reduce((a,b)=>a+b,0);
+  const got=Object.keys(planned).reduce((a,m)=>a+Math.min(planned[m],sets[m]||0),0);
+  return{sets,planned,done:days.size,sched:Math.max(sched,days.size),cov:tot?Math.round(got/tot*100):0}}
 function newPRs(l){const out=[];l.exercises.forEach(e=>{const mx=Math.max(...e.sets.map(x=>num(x.kg)));let prior=0;S.logs.forEach(o=>{if(o===l||o.date>l.date)return;o.exercises.filter(x=>x.ex===e.ex).forEach(x=>x.sets.forEach(y=>{prior=Math.max(prior,num(y.kg))}))});if(prior>0&&mx>prior)out.push({name:exName(e.ex),kg:mx})});return out}
 const AFF=["you're not just training. You're transforming.","every rep today was a vote for the person you're becoming.","showing up is the hardest rep — and you nailed it.","consistency beats intensity, and today you proved it.","strong body, strong mind. Well done today.","another one in the bank. Small steps, big changes.","you did what most people only plan to do.","progress, not perfection — and you made progress today."];
 const MEALS=['Breakfast','Lunch','Dinner','Snacks'];
@@ -406,9 +407,9 @@ function vActive(){const A=S.active;if(!A){return '<p>No active workout.</p>'}
   ${A.exercises.map((e,ei)=>{const pv=prevSets(e.ex,A.date);const alldone=e.sets.length&&e.sets.every(s=>s.effort);
    return `<div class="acard" id="ac${ei}"><div class="row" style="align-items:flex-start"><div class="th" style="width:44px;height:44px;border-radius:10px;background:var(--card2);display:grid;place-items:center;font-size:12px;color:var(--ac2);font-weight:700">${initials(exName(e.ex))}</div><div class="sp"><button class="h3b" data-a="exercise" data-e="${e.ex}"><h3>${esc(exName(e.ex))} <span class="mut xs">ⓘ</span></h3></button>${alldone?'<span class="done-b">✓ DONE</span>':'<span class="xs mut">'+e.sets.length+' sets • '+e.lo+'-'+e.hi+' reps'+(e.side?' per side':'')+'</span>'}</div><button class="ib" data-a="exMenu" data-ei="${ei}">⋮</button></div>
     <input data-in="note" data-ei="${ei}" value="${esc(e.notes)}" placeholder="✎ Add notes..." style="margin:10px 0 4px;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:6px 0;font-size:14px">
-    <div class="sh"><span>SET</span><span style="text-align:center">PREVIOUS</span><span style="text-align:center">KG</span><span style="text-align:center">REPS</span><span style="text-align:center">EFFORT</span></div>
+    <div class="sh"><span>SET</span><button class="prevh" data-a="fillPrev" data-ei="${ei}" title="Fill all sets from previous">PREVIOUS ↺</button><span style="text-align:center">KG</span><span style="text-align:center">REPS</span><span style="text-align:center">EFFORT</span></div>
     ${e.sets.map((s,si)=>{const p=pv&&(pv.sets[si]||pv.sets[pv.sets.length-1]);
-     return `<div class="swrap"><div class="sr ${s.effort?'ok':''}"><div class="n">${si+1}</div><div class="xs mut" style="text-align:center">${p?`${fkg(p.kg)} x ${p.reps}<span class="dot ${p.effort||''}"></span>`:'–'}</div>
+     return `<div class="swrap"><div class="sr ${s.effort?'ok':''}"><div class="n">${si+1}</div>${p?`<button class="xs prevb" data-a="usePrev" data-ei="${ei}" data-si="${si}" title="Tap to fill kg and reps">${fkg(p.kg)} x ${p.reps}<span class="dot ${p.effort||''}"></span></button>`:'<div class="xs mut" style="text-align:center">–</div>'}
       <input inputmode="decimal" data-in="kg" data-ei="${ei}" data-si="${si}" value="${s.kg===''?'':s.kg}" placeholder="${p?fkg(p.kg):''}">
       <input inputmode="numeric" data-in="reps" data-ei="${ei}" data-si="${si}" value="${s.reps===''?'':s.reps}" placeholder="${p?p.reps:''}">
       <button class="ck" data-a="setck" data-ei="${ei}" data-si="${si}">${s.effort?'✓':''}</button></div><button class="sdel" data-a="delSet" data-ei="${ei}" data-si="${si}">🗑</button></div>`}).join('')}
@@ -426,32 +427,48 @@ function vCelebrate(v){const l=S.logs.find(x=>x.id===v.id);if(!l)return '<div cl
    ${l.dur?row('⏱','Duration',l.dur+' minutes'):''}${row('🏋','Volume lifted',Math.round(vv).toLocaleString()+' kgs')}${row('🦛','Equivalent to lifting',eq)}
    ${prs.map(p=>row('🏆','New personal record',esc(p.name)+' — '+fkg(p.kg)+' kg')).join('')}
    <div class="sp"></div><button class="btn" data-a="celNext" data-id="${l.id}" style="margin-top:24px">Continue</button><button class="btn" style="background:none;color:var(--mut)" data-a="celDone">Done</button></div>`}
-function bodySVG(side,sets){
-  const pr=m=>Math.min(1,(sets[m]||0)/WEEK_TARGET);const F=m=>sets[m]>0?`rgba(91,141,239,${(.4+.6*pr(m)).toFixed(2)})`:'#2d3746';
-  const sh=(m,inner)=>inner.replace('<','<'+'').replace(/^<(\w+)/,`<$1 data-a="musTip" data-m="${m}" fill="${F(m)}" stroke="#0e131a" stroke-width="1"`);
-  const E=(m,cx,cy,rx,ry,rot)=>sh(m,`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"${rot?` transform="rotate(${rot} ${cx} ${cy})"`:''}/>`);
-  const Pth=(m,d)=>sh(m,`<path d="${d}"/>`);
-  const base=`<circle cx="100" cy="30" r="19" fill="#1c2430"/><rect x="92" y="46" width="16" height="12" fill="#1c2430"/>
-   <path d="M70 60 Q100 52 130 60 L136 100 Q132 150 126 172 L74 172 Q68 150 64 100 Z" fill="#1c2430"/>
-   <path d="M76 170 L100 170 L97 262 L94 384 L72 384 L70 262 Z" fill="#1c2430"/>
-   <path d="M64 70 Q44 92 40 140 L37 186 L52 188 L58 146 Q64 112 70 80 Z" fill="#1c2430"/>`;
+function bodySVG(side,st){
+  const sets=st.sets,pl=st.planned;
+  const pr=m=>pl[m]?Math.min(1,(sets[m]||0)/pl[m]):0;
+  const col=m=>(sets[m]||0)>0?`rgba(91,141,239,${(.38+.62*pr(m)).toFixed(2)})`:(pl[m]?'#3b4759':'#2f3948');
+  const M=(m,d)=>`<path data-a="musTip" data-m="${m}" d="${d}" fill="${col(m)}" stroke="#121820" stroke-width=".9" stroke-linejoin="round"/>`;
+  const R=(m,x,y,w,h)=>`<rect data-a="musTip" data-m="${m}" x="${x}" y="${y}" width="${w}" height="${h}" rx="4.5" fill="${col(m)}" stroke="#121820" stroke-width=".9"/>`;
+  const sil='M110 58 L101 58 L99 73 C90 77 72 79 63 84 C52 88 46 99 45 114 C43 136 41 156 39 172 C37 196 36 220 33 240 L30 262 C29 272 38 274 40 266 L46 244 C50 216 54 192 58 172 C60 152 62 130 64 118 C66 134 72 158 74 178 C76 196 78 210 77 224 C73 246 72 278 75 312 C77 332 78 346 79 360 C76 386 82 410 88 432 L85 460 C83 470 94 473 102 470 L103 460 L100 432 C102 410 102 386 100 362 C103 340 104 318 105 296 C107 270 109 248 110 234 Z';
+  const delt='M63 84 C52 86 46 97 46 113 C47 125 57 126 65 118 C69 106 69 92 63 84Z';
+  const arm='M55 117 C48 128 46 147 48 165 C55 168 60 160 61 148 C62 134 61 124 58 116Z';
+  const fore='M47 173 C43 196 39 220 36 242 L45 244 C49 222 55 198 58 175 C55 170 51 170 47 173Z';
   let half;
-  if(side==='front')half=Pth('Traps','M84 56 L98 58 L98 66 L72 70 Z')+E('Shoulders',60,80,15,13)+Pth('Chest','M70 80 Q98 72 98 100 Q80 110 66 100 Z')+E('Biceps',51,114,9,20,8)+E('Forearms',44,160,8,22,5)+Pth('Core','M72 112 L82 110 L82 154 L74 150 Z')+E('Quadriceps',84,226,15,44)+E('Adductors',96,228,5,24)+E('Calves',83,326,10,32);
-  else half=Pth('Traps','M84 56 L98 56 L98 100 L80 82 Z')+E('Shoulders',60,80,15,13)+Pth('Back','M68 86 Q84 84 98 102 L98 146 Q78 144 72 128 Z')+E('Triceps',51,114,9,20,8)+E('Forearms',44,160,8,22,5)+E('Glutes',86,184,15,15)+E('Hamstrings',84,240,14,38)+E('Calves',83,326,10,32);
-  const mid=side==='front'?`<rect data-a="musTip" data-m="Abs" x="86" y="106" width="28" height="50" rx="9" fill="${F('Abs')}" stroke="#0e131a"/>`:'';
-  return `<svg viewBox="0 0 200 392" style="width:100%;max-width:300px;display:block;margin:auto"><g>${base}${half}</g><g transform="translate(200,0) scale(-1,1)">${base}${half}</g>${mid}</svg>`}
+  if(side==='front')half=
+    M('Traps','M102 61 C95 66 85 73 66 82 L76 88 C88 84 99 79 104 76Z')+M('Shoulders',delt)+
+    M('Chest','M108 93 C97 90 83 90 71 96 C66 108 70 124 81 132 C93 138 104 134 108 127Z')+
+    M('Core','M70 136 C73 152 76 172 79 192 C85 190 90 176 91 160 C86 150 79 142 71 134Z')+
+    R('Abs',94,140,15,14)+R('Abs',94,156,15,14)+R('Abs',94,172,15,14)+R('Abs',95,188,14,14)+
+    M('Biceps',arm)+M('Forearms',fore)+
+    M('Quadriceps','M77 240 C74 268 76 300 83 324 L92 322 C93 296 92 262 90 242 Z')+M('Quadriceps','M91 238 C94 262 97 296 96 322 L104 322 C104 296 102 262 101 238Z')+
+    M('Adductors','M102 240 C107 240 109 246 109 254 C108 280 107 296 105 304 C103 290 103 262 102 244Z')+M('Quadriceps','M96 298 C92 310 92 324 99 332 C105 330 107 318 105 306 C103 298 99 294 96 298Z')+
+    M('Calves','M80 344 C78 372 82 402 88 424 L97 424 C99 402 101 372 99 348 C93 343 86 342 80 344Z');
+  else half=
+    M('Back','M68 100 C66 128 74 168 94 192 L110 200 L110 120 C94 118 78 110 68 100Z')+M('Back','M105 142 C106 164 106 186 108 206 L110 206 L110 142Z')+
+    M('Traps','M110 60 C100 64 90 72 68 82 C75 96 93 112 110 138Z')+M('Shoulders',delt)+
+    M('Triceps',arm)+M('Forearms',fore)+
+    M('Glutes','M110 203 C96 197 80 201 76 219 C74 237 88 249 110 245Z')+
+    M('Hamstrings','M78 252 C74 280 78 312 86 334 L97 332 C97 302 97 274 95 254Z')+M('Hamstrings','M96 254 C98 274 98 302 98 332 L108 332 C110 302 109 274 107 254Z')+
+    M('Calves','M80 346 C76 370 80 398 88 420 L92 420 C92 396 92 368 91 346Z')+M('Calves','M91 346 C92 368 92 396 92 420 L98 420 C101 396 101 368 99 348Z');
+  const body=`<ellipse cx="110" cy="33" rx="17" ry="22" fill="#1b2430" stroke="#2b3646"/><path d="${sil}" fill="#1b2430" stroke="#2b3646" stroke-width="1"/>${half}`;
+  return `<svg viewBox="0 0 220 480" style="width:100%;max-width:300px;display:block;margin:auto"><g>${body}</g><g transform="translate(220,0) scale(-1,1)">${body}</g></svg>`}
 function vWeekly(v){const l=S.logs.find(x=>x.id===v.id);const date=l?l.date:today();const st=weekStats(date);const side=ui.side||'front';
-  const tops=Object.keys(st.sets).sort((a,b)=>st.sets[b]-st.sets[a]);const sel=ui.tip&&st.sets[ui.tip]!=null?ui.tip:(tops[0]||'');
+  const ms=Object.keys(st.planned).sort((a,b)=>st.planned[b]-st.planned[a]);const sel=ui.tip&&st.planned[ui.tip]!=null?ui.tip:(ms.slice().sort((a,b)=>(st.sets[b]||0)-(st.sets[a]||0))[0]||'');
+  const pct=m=>Math.min(100,st.planned[m]?(st.sets[m]||0)/st.planned[m]*100:0);
   return `<div class="top">${backBtn}<div class="sp"></div></div>
   <h1 style="font-size:28px;margin:4px 0 8px">Weekly Progress</h1>
   <div class="row"><span class="pill">${st.done}/${st.sched} workouts</span><span class="pill">${st.cov}% muscle coverage</span></div>
   <div style="position:relative;margin:14px 0 6px">
-   ${sel?`<div class="card" style="margin:0 0 6px"><div class="b">${esc(sel)}</div><div class="xs mut">${st.sets[sel]||0}/${WEEK_TARGET} sets this week</div><div class="bar" style="margin-top:6px"><i style="width:${Math.min(100,(st.sets[sel]||0)/WEEK_TARGET*100)}%"></i></div></div>`:''}
-   ${bodySVG(side,st.sets)}
+   ${sel?`<div class="card" style="margin:0 0 6px"><div class="b">${esc(sel)}</div><div class="xs mut">${st.sets[sel]||0}/${st.planned[sel]} sets this week (from your plan)</div><div class="bar" style="margin-top:6px"><i style="width:${pct(sel)}%"></i></div></div>`:''}
+   ${bodySVG(side,st)}
    <button class="ib" style="position:absolute;right:0;bottom:0;background:var(--card2);color:var(--ac2)" data-a="flipBody" title="Rotate">⟲</button></div>
   <div class="xs mut" style="text-align:center">${side==='front'?'Front':'Back'} view · tap a muscle · ⟲ to rotate</div>
-  <h3 style="margin:16px 0 6px">Muscles trained this week</h3>
-  ${tops.map(m=>`<button class="row" style="width:100%;padding:8px 0" data-a="musTip" data-m="${m}"><div style="width:96px;text-align:left" class="sm">${m}</div><div class="bar sp"><i style="width:${Math.min(100,st.sets[m]/WEEK_TARGET*100)}%"></i></div><span class="xs mut" style="width:46px;text-align:right">${st.sets[m]}/${WEEK_TARGET}</span></button>`).join('')||'<div class="mut sm">No sets logged this week yet.</div>'}
+  <h3 style="margin:16px 0 2px">Planned sets this week</h3><div class="xs mut" style="margin-bottom:6px">Targets = the sets in your active plan (${esc((plan()||{}).name||'')}).</div>
+  ${ms.map(m=>`<button class="row" style="width:100%;padding:8px 0" data-a="musTip" data-m="${m}"><div style="width:96px;text-align:left" class="sm">${m}</div><div class="bar sp"><i style="width:${pct(m)}%"></i></div><span class="xs mut" style="width:54px;text-align:right">${st.sets[m]||0}/${st.planned[m]}</span></button>`).join('')||'<div class="mut sm">No plan or sets yet.</div>'}
   <button class="btn" style="margin-top:18px" data-a="celDone">Done for today ✓</button>`}
 
 /* ---- Summary ---- */
@@ -698,6 +715,8 @@ A.effort=d=>{const{ei,si}=ui.cur;const ex=S.active.exercises;const e=ex[ei];e.se
   if(e.sets.every(x=>x.effort)){ // exercise finished -> glide to the next unfinished one
     let nx=ex.findIndex((x,i)=>i>ei&&x.sets.some(y=>!y.effort));if(nx<0)nx=ex.findIndex(x=>x.sets.some(y=>!y.effort));
     setTimeout(()=>{if(nx>=0){const el=document.getElementById('ac'+nx);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}else{toast('All exercises done — tap Finish');window.scrollTo({top:0,behavior:'smooth'})}},120)}};
+A.usePrev=d=>{const A_=S.active,e=A_.exercises[+d.ei],s=e.sets[+d.si];const p=prevSets(e.ex,A_.date);if(!p)return;const pp=p.sets[+d.si]||p.sets[p.sets.length-1];s.kg=pp.kg;s.reps=pp.reps;save();render()};
+A.fillPrev=d=>{const A_=S.active,e=A_.exercises[+d.ei];const p=prevSets(e.ex,A_.date);if(!p)return toast('No previous data for this exercise');e.sets.forEach((s,i)=>{const pp=p.sets[i]||p.sets[p.sets.length-1];s.kg=pp.kg;s.reps=pp.reps});save();render();toast('Filled from last time — rate effort as you go')};
 A.delSet=d=>{const ex=S.active.exercises,e=ex[+d.ei];e.sets.splice(+d.si,1);if(!e.sets.length)ex.splice(+d.ei,1);save();render()};
 A.addSet=d=>{const e=S.active.exercises[d.ei];const l=e.sets[e.sets.length-1];e.sets.push({kg:l?l.kg:'',reps:l?l.reps:'',effort:null});save();render()};
 A.rest=d=>{startRest(+d.s)};
