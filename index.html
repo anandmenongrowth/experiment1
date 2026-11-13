@@ -290,6 +290,13 @@ function weekStats(date){const ws=addDays(date,-dateOf(date)),we=addDays(ws,6);c
   const got=Object.keys(planned).reduce((a,m)=>a+Math.min(planned[m],sets[m]||0),0);
   return{sets,planned,done:days.size,sched:Math.max(sched,days.size),cov:tot?Math.round(got/tot*100):0}}
 function newPRs(l){const out=[];l.exercises.forEach(e=>{const mx=Math.max(...e.sets.map(x=>num(x.kg)));let prior=0;S.logs.forEach(o=>{if(o===l||o.date>l.date)return;o.exercises.filter(x=>x.ex===e.ex).forEach(x=>x.sets.forEach(y=>{prior=Math.max(prior,num(y.kg))}))});if(prior>0&&mx>prior)out.push({name:exName(e.ex),kg:mx})});return out}
+const CMP=[['cricket bat','cricket bats',1.2,'🏏'],['laptop','laptops',2,'💻'],['newborn baby','newborn babies',3.5,'👶'],['house cat','house cats',4,'🐈'],['bowling ball','bowling balls',7,'🎳'],['LPG cylinder','LPG cylinders',14.2,'🧯'],['car battery','car batteries',14,'🔋'],['packed suitcase','packed suitcases',23,'🧳'],['golden retriever','golden retrievers',30,'🐕'],['sack of cement','sacks of cement',50,'🧱'],['washing machine','washing machines',70,'🧺'],['giant panda','giant pandas',100,'🐼'],['scooter','scooters',100,'🛵'],['lion','lions',190,'🦁'],['Royal Enfield Bullet','Royal Enfield Bullets',190,'🏍'],['Bengal tiger','Bengal tigers',220,'🐅'],['grand piano','grand pianos',300,'🎹'],['auto-rickshaw','auto-rickshaws',400,'🛺'],['horse','horses',500,'🐎'],['cow','cows',650,'🐄'],['small car','small cars',1000,'🚗'],['great white shark','great white sharks',1100,'🦈'],['giraffe','giraffes',1200,'🦒'],['hippopotamus','hippopotamuses',1500,'🦛'],['rhinoceros','rhinoceroses',2300,'🦏'],['orca','orcas',4500,'🐳'],['elephant','elephants',5500,'🐘'],['T. rex','T. rexes',8000,'🦖'],['school bus','school buses',11000,'🚌'],['fire engine','fire engines',12000,'🚒'],['Boeing 737','Boeing 737s',41000,'✈️']];
+function cmpFor(l){if(l.cmp&&CMP[l.cmp])return l.cmp;const vv=logVol(l);
+  let prev=null;for(let i=S.logs.length-1;i>=0;i--){const o=S.logs[i];if(o!==l&&o.cmp!=null){prev=o.cmp;break}}
+  let ok=CMP.map((c,i)=>i).filter(i=>{const n=vv/CMP[i][2];return n>=1.5&&n<=150&&i!==prev});
+  if(!ok.length)ok=CMP.map((c,i)=>i).sort((a,b)=>Math.abs(Math.log(vv/CMP[a][2]))-Math.abs(Math.log(vv/CMP[b][2]))).slice(0,3);
+  l.cmp=ok[Math.floor(Math.random()*ok.length)];save();return l.cmp}
+function cmpText(l){const c=CMP[cmpFor(l)];const n=logVol(l)/c[2];const shown=n>=10?Math.round(n):Math.round(n*10)/10;return{ic:c[3],txt:shown+' '+(shown===1?c[0]:c[1])}}
 const AFF=["you're not just training. You're transforming.","every rep today was a vote for the person you're becoming.","showing up is the hardest rep — and you nailed it.","consistency beats intensity, and today you proved it.","strong body, strong mind. Well done today.","another one in the bank. Small steps, big changes.","you did what most people only plan to do.","progress, not perfection — and you made progress today."];
 const MEALS=['Breakfast','Lunch','Dinner','Snacks'];
 function dayFood(date){const d=S.foodLog[date]||{};const t={kcal:0,p:0,c:0,f:0,n:0};for(const m of MEALS)for(const e of d[m]||[]){const i=fitem(e);t.kcal+=i.kcal;t.p+=i.p;t.c+=i.c;t.f+=i.f;t.n++}return t}
@@ -419,12 +426,12 @@ function vActive(){const A=S.active;if(!A){return '<p>No active workout.</p>'}
 /* ---- Celebration + weekly body coverage ---- */
 function vCelebrate(v){const l=S.logs.find(x=>x.id===v.id);if(!l)return '<div class="top">'+backBtn+'</div>Not found';
   const n=totalCount(),vv=logVol(l),prs=newPRs(l);const msg=AFF[(n+Math.round(vv))%AFF.length];
-  const eq=vv>=3500?(Math.max(1,Math.round(vv/2300))+(Math.round(vv/2300)<=1?' hippopotamus':' hippopotamuses')):(Math.max(1,Math.round(vv/300))+(Math.round(vv/300)<=1?' grand piano':' grand pianos'));
+  const cp=cmpText(l);
   const row=(ic,l1,l2)=>`<div class="card row" style="margin:8px 0"><span style="font-size:22px">${ic}</span><div><div class="xs mut">${l1}</div><div class="b" style="font-size:18px">${l2}</div></div></div>`;
   return `<div style="min-height:92vh;display:flex;flex-direction:column;padding-top:34px">
    <span class="pill g" style="align-self:flex-start">${n} workouts complete</span>
    <h1 style="font-size:32px;line-height:1.2;margin:24px 0 22px"><span style="color:var(--ac2)">${esc(S.name)}</span>, ${msg}</h1>
-   ${l.dur?row('⏱','Duration',l.dur+' minutes'):''}${row('🏋','Volume lifted',Math.round(vv).toLocaleString()+' kgs')}${row('🦛','Equivalent to lifting',eq)}
+   ${l.dur?row('⏱','Duration',l.dur+' minutes'):''}${row('🏋','Volume lifted',Math.round(vv).toLocaleString()+' kgs')}${row(cp.ic,'Equivalent to lifting',cp.txt)}
    ${prs.map(p=>row('🏆','New personal record',esc(p.name)+' — '+fkg(p.kg)+' kg')).join('')}
    <div class="sp"></div><button class="btn" data-a="celNext" data-id="${l.id}" style="margin-top:24px">Continue</button><button class="btn" style="background:none;color:var(--mut)" data-a="celDone">Done</button></div>`}
 function bodySVG(side,st){
