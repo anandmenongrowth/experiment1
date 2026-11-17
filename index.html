@@ -115,7 +115,7 @@ h1,h2,h3{letter-spacing:-.02em}
 <script>
 /* ============ utils ============ */
 const $=s=>document.querySelector(s);
-function dlg(html){return new Promise(res=>{const d=document.createElement('div');d.className='scrim cen';d.style.zIndex=60;d.innerHTML='<div class="dlg">'+html+'</div>';document.body.appendChild(d);const inp=d.querySelector('input');
+function dlg(html){return new Promise(res=>{const d=document.createElement('div');d.className='scrim cen';d.style.zIndex=60;d.innerHTML='<div class="dlg">'+html+'</div>';document.body.appendChild(d);ensureArmed();const inp=d.querySelector('input');
   const done=v=>{d.remove();res(v)};
   d.addEventListener('click',e=>{const a=e.target.closest('[data-dlg]');if(a)done(a.dataset.dlg==='ok'?(inp?inp.value:true):(inp?null:false));else if(e.target===d)done(inp?null:false)});
   if(inp){inp.focus();inp.select();inp.addEventListener('keydown',e=>{if(e.key==='Enter')done(inp.value)})}})}
@@ -393,7 +393,7 @@ const toast=m=>{const t=document.createElement('div');t.className='toast';t.text
 const topv=()=>ui.stack[ui.stack.length-1];
 const go=v=>{const pv=topv();if(pv)pv._y=scrollY;else ui.tabY=scrollY;ui.stack.push(v);render(false)};
 const back=()=>{ui.stack.pop();const nv=topv();const y=nv?nv._y:ui.tabY;render(false);if(y)scrollTo(0,y)};
-const sheet=s=>{ui.sheet=s;renderSheet()};
+const sheet=s=>{ui.sheet=s;renderSheet();ensureArmed()};
 const closeSheet=()=>{ui.sheet=null;renderSheet()};
 
 /* ============ charts ============ */
@@ -962,12 +962,13 @@ document.addEventListener('change',ev=>{const t=ev.target,k=t.dataset.in;if(!k)r
   save()});
 window.addEventListener('beforeunload',save);
 try{history.replaceState({s:0},'')}catch(e){}
-/* Android back button: 1st press -> dashboard, 2nd press -> leaves/closes the app */
+/* Android back button: goes back ONE screen at a time; from a tab it goes to the dashboard; from the dashboard it leaves the app */
 window.addEventListener('popstate',()=>{armed=false;
   const dg=document.querySelector('.scrim.cen');if(dg){const b=dg.querySelector('[data-dlg=no]');if(b)b.click();render();return}
   if(ui.sheet){ui.sheet=null;renderSheet();render();return}
-  if(!isClean()){ui.stack=[];ui.tab='dash';ui.date=today();render(false);return}
-  history.back()});
+  if(ui.stack.length){back();return}                       // one screen back (form -> workout -> where you came from)
+  if(ui.tab!=='dash'){ui.tab='dash';ui.date=today();render(false);return}   // tab -> dashboard
+  history.back()});                                          // already on the dashboard -> leave the app
 
 load();
 // make sure old/partial saves have all keys
